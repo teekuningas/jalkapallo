@@ -14,8 +14,8 @@ const config = {
   ballRadius: 25,
   ballBounce: -0.6,
   worldBounds: {
-    minX: -1000,
-    maxX: 1000,
+    minX: -2000,
+    maxX: 2000,
   },
   colors: {
     background: 0xadd8e6,
@@ -105,18 +105,50 @@ window.addEventListener('DOMContentLoaded', () => {
       let ballVelocity = { x: 0, y: 0 };
 
       // --- Control State ---
-      const keyboard = { a: false, d: false };
+      const controls = { moveLeft: false, moveRight: false };
       let kickStart = null;
 
       // --- Keyboard Listeners ---
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'a') keyboard.a = true;
-        if (e.key === 'd') keyboard.d = true;
+        if (e.key === 'a' || e.key === 'ArrowLeft') controls.moveLeft = true;
+        if (e.key === 'd' || e.key === 'ArrowRight') controls.moveRight = true;
       });
       window.addEventListener('keyup', (e) => {
-        if (e.key === 'a') keyboard.a = false;
-        if (e.key === 'd') keyboard.d = false;
+        if (e.key === 'a' || e.key === 'ArrowLeft') controls.moveLeft = false;
+        if (e.key === 'd' || e.key === 'ArrowRight') controls.moveRight = false;
       });
+
+      // --- Mobile Control Listeners ---
+      const leftBtn = document.getElementById('left-btn');
+      const rightBtn = document.getElementById('right-btn');
+
+      const onLeftDown = () => {
+        controls.moveLeft = true;
+        leftBtn.classList.add('pressed');
+      };
+      const onLeftUp = () => {
+        controls.moveLeft = false;
+        leftBtn.classList.remove('pressed');
+      };
+      const onRightDown = () => {
+        controls.moveRight = true;
+        rightBtn.classList.add('pressed');
+      };
+      const onRightUp = () => {
+        controls.moveRight = false;
+        rightBtn.classList.remove('pressed');
+      };
+
+      leftBtn.addEventListener('pointerdown', onLeftDown);
+      leftBtn.addEventListener('pointerup', onLeftUp);
+      leftBtn.addEventListener('pointerleave', onLeftUp);
+      rightBtn.addEventListener('pointerdown', onRightDown);
+      rightBtn.addEventListener('pointerup', onRightUp);
+      rightBtn.addEventListener('pointerleave', onRightUp);
+
+      // Prevent context menu on long press
+      leftBtn.addEventListener('contextmenu', (e) => e.preventDefault());
+      rightBtn.addEventListener('contextmenu', (e) => e.preventDefault());
 
       // --- Pointer Event Handlers ---
       function onKickStart(e) {
@@ -169,8 +201,8 @@ window.addEventListener('DOMContentLoaded', () => {
         const delta = time.deltaTime;
 
         // 1. Player Movement (in world space)
-        if (keyboard.a) player.x -= config.playerSpeed;
-        if (keyboard.d) player.x += config.playerSpeed;
+        if (controls.moveLeft) player.x -= config.playerSpeed;
+        if (controls.moveRight) player.x += config.playerSpeed;
 
         // 2. Ball Physics (in world space)
         ball.x += ballVelocity.x * delta;
