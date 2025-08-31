@@ -10,7 +10,7 @@ const config = {
   playerSpeed: 3,
   kickableDistance: 100,
   gravity: 0.3,
-  friction: 0.99,       // closer to 1 → much less “air” drag
+  friction: 0.995,      // closer to 1 → much less “air” drag
   ballRadius: 25,
   ballBounce: -0.6,
   worldBounds: {
