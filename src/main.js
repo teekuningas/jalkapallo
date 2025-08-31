@@ -322,7 +322,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const closestX = Math.max(rect.left, Math.min(ballScreenPos.x, rect.right));
         const closestY = Math.max(rect.top, Math.min(ballScreenPos.y, rect.bottom));
         const dist = Math.hypot(ballScreenPos.x - closestX, ballScreenPos.y - closestY);
-        if (dist < config.kickableDistance * world.scale.x && !kickStart) {
+        if (dist < config.kickableDistance * world.scale.x || kickStart) {
           ballBorder.clear();
           ballBorder
             .circle(0, 0, config.ballRadius + 1)
