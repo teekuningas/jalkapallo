@@ -25,8 +25,7 @@ jobs:
       - name: Build for GitHub Pages
         run: |
           REPO_NAME=$(echo $GITHUB_REPOSITORY | cut -d'/' -f2)
-          echo "VITE_BASE_URL=/$REPO_NAME/" > .env.production
-          npm run build
+          npm run build -- --base="/$REPO_NAME/"
         env:
           CI: true
 
