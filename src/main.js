@@ -79,6 +79,10 @@ window.addEventListener('DOMContentLoaded', () => {
       // --- World Coordinate System ---
       const groundLevelY = 0;
 
+      // --- Camera Pivot Setup ---
+      // Pin world pivot to (0,0) in world space, so scaling/positioning is always around origin
+      world.pivot.set(0, 0);
+
       // --- Populate World Layer ---
       const player = new Graphics();
       player.rect(0, 0, 50, 100).fill(config.colors.player);
@@ -234,14 +238,14 @@ window.addEventListener('DOMContentLoaded', () => {
         desiredScale = Math.min(1.0, desiredScale);
 
         const newScale = lerp(world.scale.x, desiredScale, config.camera.smoothing);
-
         world.scale.set(newScale);
 
-        const desiredWorldX = app.screen.width / 2 - focusPointX * newScale;
-        const desiredWorldY = app.screen.height - config.groundHeight;
+        // Lerp the pivot.x to follow the focus point (player/ball average)
+        world.pivot.x = lerp(world.pivot.x, focusPointX, config.camera.smoothing);
 
-        world.x = lerp(world.x, desiredWorldX, config.camera.smoothing);
-        world.y = lerp(world.y, desiredWorldY, config.camera.smoothing);
+        // Always pin world (0,0) to screen center X, and ground to screen bottom
+        world.position.set(app.screen.width / 2, app.screen.height - config.groundHeight);
+        // No need to lerp world.x or world.y
 
         // 5. Proximity Check
         const playerScreenPos = world.toGlobal({
@@ -296,6 +300,9 @@ window.addEventListener('DOMContentLoaded', () => {
         ground
           .rect(0, app.screen.height - config.groundHeight, app.screen.width, config.groundHeight)
           .fill(config.colors.ground);
+
+        // Always pin world (0,0) to screen center X, and ground to screen bottom
+        world.position.set(app.screen.width / 2, app.screen.height - config.groundHeight);
       };
 
       window.addEventListener('resize', onResize);
