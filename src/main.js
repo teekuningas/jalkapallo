@@ -8,7 +8,7 @@ function lerp(start, end, t) {
 
 const config = {
   playerSpeed: 3,
-  kickableDistance: 50,
+  kickableDistance: 100,
   gravity: 0.3,
   friction: 0.99,       // closer to 1 → much less “air” drag
   ballRadius: 25,
@@ -113,7 +113,7 @@ window.addEventListener('DOMContentLoaded', () => {
       ball.interactive = true;
       ball.cursor = 'pointer';
       // enlarge hit area for easier clicking
-      ball.hitArea = new Circle(0, 0, config.ballRadius + 20);
+      ball.hitArea = new Circle(0, 0, config.ballRadius + 40);
       world.addChild(ball);
 
       const ballBorder = new Graphics();
