@@ -236,7 +236,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (kickStart) {
           kickIndicator.clear();
           const kickEnd = { x: e.global.x, y: e.global.y };
-          const kickPower = 0.1 / world.scale.x;
+          const kickPower = 0.05 / world.scale.x;
           const kickVector = {
             x: (kickEnd.x - kickStart.x) * kickPower,
             y: (kickEnd.y - kickStart.y) * kickPower,
