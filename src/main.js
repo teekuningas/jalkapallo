@@ -1,5 +1,5 @@
 // Import the necessary classes from PixiJS
-import { Application, Sprite, Texture, Graphics, Container } from 'pixi.js';
+import { Application, Sprite, Texture, Graphics, Container, Circle } from 'pixi.js';
 
 // Helper function for linear interpolation (smoothing)
 function lerp(start, end, t) {
@@ -112,6 +112,8 @@ window.addEventListener('DOMContentLoaded', () => {
       ball.y = groundLevelY - config.ballRadius;
       ball.interactive = true;
       ball.cursor = 'pointer';
+      // enlarge hit area for easier clicking
+      ball.hitArea = new Circle(0, 0, config.ballRadius + 20);
       world.addChild(ball);
 
       const ballBorder = new Graphics();
