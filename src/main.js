@@ -142,29 +142,50 @@ window.addEventListener('DOMContentLoaded', () => {
       const leftBtn = document.getElementById('left-btn');
       const rightBtn = document.getElementById('right-btn');
 
-      const onLeftDown = () => {
+      // prevent browser gestures on the buttons
+      [leftBtn, rightBtn].forEach(btn => {
+        btn.style.touchAction = 'none';
+      });
+
+      // LEFT BUTTON
+      leftBtn.addEventListener('pointerdown', e => {
+        e.preventDefault();
         controls.moveLeft = true;
         leftBtn.classList.add('pressed');
-      };
-      const onLeftUp = () => {
+        leftBtn.setPointerCapture(e.pointerId);
+      });
+      leftBtn.addEventListener('pointerup',   e => {
+        e.preventDefault();
         controls.moveLeft = false;
         leftBtn.classList.remove('pressed');
-      };
-      const onRightDown = () => {
+        leftBtn.releasePointerCapture(e.pointerId);
+      });
+      leftBtn.addEventListener('pointercancel', e => {
+        e.preventDefault();
+        controls.moveLeft = false;
+        leftBtn.classList.remove('pressed');
+        leftBtn.releasePointerCapture(e.pointerId);
+      });
+
+      // RIGHT BUTTON
+      rightBtn.addEventListener('pointerdown', e => {
+        e.preventDefault();
         controls.moveRight = true;
         rightBtn.classList.add('pressed');
-      };
-      const onRightUp = () => {
+        rightBtn.setPointerCapture(e.pointerId);
+      });
+      rightBtn.addEventListener('pointerup',   e => {
+        e.preventDefault();
         controls.moveRight = false;
         rightBtn.classList.remove('pressed');
-      };
-
-      leftBtn.addEventListener('pointerdown', onLeftDown);
-      leftBtn.addEventListener('pointerup', onLeftUp);
-      leftBtn.addEventListener('pointerleave', onLeftUp);
-      rightBtn.addEventListener('pointerdown', onRightDown);
-      rightBtn.addEventListener('pointerup', onRightUp);
-      rightBtn.addEventListener('pointerleave', onRightUp);
+        rightBtn.releasePointerCapture(e.pointerId);
+      });
+      rightBtn.addEventListener('pointercancel', e => {
+        e.preventDefault();
+        controls.moveRight = false;
+        rightBtn.classList.remove('pressed');
+        rightBtn.releasePointerCapture(e.pointerId);
+      });
 
       // Prevent context menu on long press
       leftBtn.addEventListener('contextmenu', (e) => e.preventDefault());
