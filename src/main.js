@@ -238,13 +238,26 @@ window.addEventListener('DOMContentLoaded', () => {
       function onKickEnd(e) {
         if (kickStart) {
           kickIndicator.clear();
-          // get ball’s *current* center in screen space
+          // re-compute proximity at release—must still be within kickableDistance
           const ballScreenPos = world.toGlobal(ball.position);
-          const kickEnd = { x: e.global.x, y: e.global.y };
-          const kickPower = 0.1 / world.scale.x;
-          const dx = kickEnd.x - ballScreenPos.x;
-          const dy = kickEnd.y - ballScreenPos.y;
-          ballVelocity = { x: dx * kickPower, y: dy * kickPower };
+          const topLeft       = world.toGlobal({ x: player.x,                y: player.y });
+          const bottomRight   = world.toGlobal({ x: player.x + player.width, y: player.y + player.height });
+          const rect = {
+            left:   topLeft.x,
+            right:  bottomRight.x,
+            top:    topLeft.y,
+            bottom: bottomRight.y
+          };
+          const closestX = Math.max(rect.left,   Math.min(ballScreenPos.x, rect.right));
+          const closestY = Math.max(rect.top,    Math.min(ballScreenPos.y, rect.bottom));
+          const distEnd  = Math.hypot(ballScreenPos.x - closestX, ballScreenPos.y - closestY);
+          if (distEnd <= config.kickableDistance * world.scale.x) {
+            const kickEnd   = { x: e.global.x, y: e.global.y };
+            const kickPower = 0.1 / world.scale.x;
+            const dx = kickEnd.x - ballScreenPos.x;
+            const dy = kickEnd.y - ballScreenPos.y;
+            ballVelocity = { x: dx * kickPower, y: dy * kickPower };
+          }
           kickStart = null;
         }
       }
