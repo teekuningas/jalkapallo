@@ -83,6 +83,22 @@ window.addEventListener('DOMContentLoaded', () => {
       // Pin world pivot to (0,0) in world space, so scaling/positioning is always around origin
       world.pivot.set(0, 0);
 
+      // --- Ground Markers (stripes every 200 world units) ---
+      const groundMarkers = new Graphics();
+      const stripeSpacing = 200;        // distance between stripes in world coords
+      const stripeWidth   = 5;          // stripe thickness
+      const stripeHeight  = 30;         // how tall the stripe is above ground
+      // start at the first multiple of stripeSpacing ≥ minX
+      const startX = Math.ceil(config.worldBounds.minX / stripeSpacing) * stripeSpacing;
+      for (let x = startX; x <= config.worldBounds.maxX; x += stripeSpacing) {
+        groundMarkers
+          .beginFill(0x888888)                                      // a stone‐gray color
+          .drawRect(x - stripeWidth/2, groundLevelY - stripeHeight, // position in world coords
+                    stripeWidth, stripeHeight)
+          .endFill();
+      }
+      world.addChild(groundMarkers);
+
       // --- Populate World Layer ---
       const player = new Graphics();
       player.rect(0, 0, 50, 100).fill(config.colors.player);
