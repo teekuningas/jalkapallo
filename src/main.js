@@ -218,7 +218,8 @@ window.addEventListener('DOMContentLoaded', () => {
         const dist = Math.hypot(ballScreenPos.x - closestX, ballScreenPos.y - closestY);
 
         if (dist < config.kickableDistance * world.scale.x) {
-          kickStart = { x: e.global.x, y: e.global.y };
+          // just a flag that we’ve begun dragging
+          kickStart = true;
           e.stopPropagation();
         }
       }
@@ -237,13 +238,13 @@ window.addEventListener('DOMContentLoaded', () => {
       function onKickEnd(e) {
         if (kickStart) {
           kickIndicator.clear();
+          // get ball’s *current* center in screen space
+          const ballScreenPos = world.toGlobal(ball.position);
           const kickEnd = { x: e.global.x, y: e.global.y };
           const kickPower = 0.1 / world.scale.x;
-          const kickVector = {
-            x: (kickEnd.x - kickStart.x) * kickPower,
-            y: (kickEnd.y - kickStart.y) * kickPower,
-          };
-          ballVelocity = kickVector;
+          const dx = kickEnd.x - ballScreenPos.x;
+          const dy = kickEnd.y - ballScreenPos.y;
+          ballVelocity = { x: dx * kickPower, y: dy * kickPower };
           kickStart = null;
         }
       }
