@@ -8,9 +8,9 @@ function lerp(start, end, t) {
 
 const config = {
   playerSpeed: 3,
-  kickableDistance: 150,
+  kickableDistance: 50,
   gravity: 0.3,
-  friction: 0.98,
+  friction: 0.96,
   ballRadius: 25,
   ballBounce: -0.6,
   worldBounds: {
@@ -236,7 +236,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (kickStart) {
           kickIndicator.clear();
           const kickEnd = { x: e.global.x, y: e.global.y };
-          const kickPower = 0.05 / world.scale.x;
+          const kickPower = 0.1 / world.scale.x;
           const kickVector = {
             x: (kickEnd.x - kickStart.x) * kickPower,
             y: (kickEnd.y - kickStart.y) * kickPower,
