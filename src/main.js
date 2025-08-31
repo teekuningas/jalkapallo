@@ -142,8 +142,21 @@ window.addEventListener('DOMContentLoaded', () => {
       const leftBtn = document.getElementById('left-btn');
       const rightBtn = document.getElementById('right-btn');
 
-      // prevent browser gestures on the buttons
+      // =========================
+      // SUPPRESS AND PREVENT OS LONG-PRESS HAPTIC & CLICK
+      // =========================
       [leftBtn, rightBtn].forEach(btn => {
+        // MUST be passive: false so preventDefault() actually cancels the native touch-hold
+        btn.addEventListener('touchstart',  e => e.preventDefault(), { passive: false });
+        btn.addEventListener('touchend',    e => e.preventDefault(), { passive: false });
+        btn.addEventListener('touchcancel', e => e.preventDefault(), { passive: false });
+
+        // Also kill the synthesized click (which on Android will trigger haptic)
+        btn.addEventListener('click', e => {
+          e.preventDefault();
+          e.stopImmediatePropagation();
+        }, { capture: true });
+
         btn.style.touchAction = 'none';
       });
 
