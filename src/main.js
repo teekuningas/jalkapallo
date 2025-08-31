@@ -7,10 +7,10 @@ function lerp(start, end, t) {
 }
 
 const config = {
-  playerSpeed: 5,
-  kickableDistance: 75,
-  gravity: 0.5,
-  friction: 0.995,
+  playerSpeed: 3,
+  kickableDistance: 150,
+  gravity: 0.3,
+  friction: 0.98,
   ballRadius: 25,
   ballBounce: -0.6,
   worldBounds: {
@@ -206,13 +206,14 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // --- Pointer Event Handlers ---
       function onKickStart(e) {
-        const playerCenter = { x: player.x + player.width / 2, y: player.y + player.height / 2 };
-        const playerScreenPos = world.toGlobal(playerCenter);
+        // compute screen positions for more accurate rectangle-based distance
         const ballScreenPos = world.toGlobal(ball.position);
-        const dist = Math.hypot(
-          playerScreenPos.x - ballScreenPos.x,
-          playerScreenPos.y - ballScreenPos.y
-        );
+        const topLeft = world.toGlobal({ x: player.x, y: player.y });
+        const bottomRight = world.toGlobal({ x: player.x + player.width, y: player.y + player.height });
+        const rect = { left: topLeft.x, right: bottomRight.x, top: topLeft.y, bottom: bottomRight.y };
+        const closestX = Math.max(rect.left, Math.min(ballScreenPos.x, rect.right));
+        const closestY = Math.max(rect.top, Math.min(ballScreenPos.y, rect.bottom));
+        const dist = Math.hypot(ballScreenPos.x - closestX, ballScreenPos.y - closestY);
 
         if (dist < config.kickableDistance * world.scale.x) {
           kickStart = { x: e.global.x, y: e.global.y };
@@ -235,7 +236,7 @@ window.addEventListener('DOMContentLoaded', () => {
         if (kickStart) {
           kickIndicator.clear();
           const kickEnd = { x: e.global.x, y: e.global.y };
-          const kickPower = 0.2 / world.scale.x;
+          const kickPower = 0.1 / world.scale.x;
           const kickVector = {
             x: (kickEnd.x - kickStart.x) * kickPower,
             y: (kickEnd.y - kickStart.y) * kickPower,
@@ -298,15 +299,13 @@ window.addEventListener('DOMContentLoaded', () => {
         // No need to lerp world.x or world.y
 
         // 5. Proximity Check
-        const playerScreenPos = world.toGlobal({
-          x: player.x + player.width / 2,
-          y: player.y + player.height / 2,
-        });
         const ballScreenPos = world.toGlobal(ball.position);
-        const dist = Math.hypot(
-          playerScreenPos.x - ballScreenPos.x,
-          playerScreenPos.y - ballScreenPos.y
-        );
+        const topLeft = world.toGlobal({ x: player.x, y: player.y });
+        const bottomRight = world.toGlobal({ x: player.x + player.width, y: player.y + player.height });
+        const rect = { left: topLeft.x, right: bottomRight.x, top: topLeft.y, bottom: bottomRight.y };
+        const closestX = Math.max(rect.left, Math.min(ballScreenPos.x, rect.right));
+        const closestY = Math.max(rect.top, Math.min(ballScreenPos.y, rect.bottom));
+        const dist = Math.hypot(ballScreenPos.x - closestX, ballScreenPos.y - closestY);
         if (dist < config.kickableDistance * world.scale.x && !kickStart) {
           ballBorder.clear();
           ballBorder
