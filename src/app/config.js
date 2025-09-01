@@ -14,6 +14,8 @@ export const config = {
     sun: 0xffff00,
     ground: 0x00ff00,
     player: 0xff0000,
+    playerSkin: 0xffdbac,
+    playerTorso: 0xff8c00,
     ball: 0xffffff,
     ballBorder: 0x0000ff,
     kickIndicator: 0xffffff,

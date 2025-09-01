@@ -15,6 +15,7 @@ export function startGame(app) {
   // --- Create Layers ---
   const staticLayer = new Container();
   staticLayer.zIndex = 0;
+  staticLayer.sortableChildren = true;
   app.stage.addChild(staticLayer);
 
   const world = new Container();
@@ -27,13 +28,15 @@ export function startGame(app) {
 
   // --- Populate Static Layer ---
   const background = new Graphics();
+  background.zIndex = -1;
   staticLayer.addChild(background);
 
-  const sun = new Sprite(Texture.WHITE);
-  sun.anchor.set(0.5);
-  sun.tint = config.colors.sun;
-  sun.width = 100;
-  sun.height = 100;
+  const sun = new Graphics();
+  sun.zIndex = 0; // draw sun in front of background
+  // halo
+  sun.circle(0, 0, 70).fill({ color: config.colors.sun, alpha: 0.2 });
+  // sun body
+  sun.circle(0, 0, 50).fill(config.colors.sun);
   staticLayer.addChild(sun);
 
   const ground = new Graphics();
@@ -68,11 +71,32 @@ export function startGame(app) {
   world.addChild(groundMarkers);
 
   // --- Populate World Layer ---
-  const player = new Graphics();
-  player.rect(0, 0, 50, 100).fill(config.colors.player);
+  const player = new Container();
   player.x = 100;
   player.y = groundLevelY - 100;
   world.addChild(player);
+
+  const head = new Graphics();
+  head.rect(0, 0, 50, 40).fill(config.colors.playerSkin);
+  player.addChild(head);
+
+  const torso = new Graphics();
+  torso.rect(0, 40, 50, 40).fill(config.colors.playerTorso);
+  player.addChild(torso);
+
+  const foot = new Container();
+  foot.y = 80;
+  player.addChild(foot);
+
+  const foot_upper = new Graphics();
+  foot_upper.rect(0, 0, 50, 20).fill(config.colors.playerSkin);
+  foot.addChild(foot_upper);
+
+  const foot_lower = new Graphics();
+  foot_lower.rect(0, 20, 50, 20).fill(config.colors.playerSkin);
+  foot.addChild(foot_lower);
+  player.width = 50;
+  player.height = 100;
 
   const ball = new Graphics();
   ball.circle(0, 0, config.ballRadius).fill(config.colors.ball);
@@ -193,6 +217,11 @@ export function startGame(app) {
       // just a flag that we’ve begun dragging
       kickStart = true;
       e.stopPropagation();
+
+      // Animate the foot
+      foot_upper.rotation = -0.2;
+      foot_lower.rotation = 0.2;
+      foot_lower.x = 10;
     }
   }
 
@@ -234,6 +263,11 @@ export function startGame(app) {
         ballVelocity = { x: dx * kickPower, y: dy * kickPower };
       }
       kickStart = null;
+
+      // Reset foot animation
+      foot_upper.rotation = 0;
+      foot_lower.rotation = 0;
+      foot_lower.x = 0;
     }
   }
 
