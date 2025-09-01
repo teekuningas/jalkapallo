@@ -5,76 +5,10 @@
     <title>Jaakon seikkailut</title>
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <style>
-      body {
-        margin: 0;
-        padding: 0;
-        background-color: #000;
-        overflow: hidden;
-      }
-      canvas {
-        display: block;
-      }
-      #mobile-controls {
-        position: absolute;
-        bottom: 80px;
-        left: 20px;
-        display: flex;
-        flex-direction: column; /* Stack them vertically */
-        gap: 10px; /* Space between buttons */
-        z-index: 100;
-        pointer-events: none; /* Allow clicks to pass through the container */
-      }
-      .move-btn {
-        width: 80px;
-        height: 80px;
-        background-color: rgba(255, 255, 255, 0.5);
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        font-size: 40px;
-        color: white;
-        user-select: none;
-        -webkit-user-select: none;       /* Safari */
-        -moz-user-select: none;          /* Firefox */
-        -webkit-touch-callout: none;     /* iOS callout */
-        -webkit-tap-highlight-color: rgba(0,0,0,0); /* WebKit tap ripple */
-        pointer-events: auto; /* Make buttons clickable */
-        touch-action: none;   /* disable default touch gestures */
-        transition: all 0.1s ease-in-out;
-      }
-      .move-btn.pressed {
-        background-color: rgba(255, 255, 255, 0.9);
-        transform: scale(0.95);
-      }
-      #orientation-lock {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: #000;
-        color: #fff;
-        justify-content: center;
-        align-items: center;
-        text-align: center;
-        font-size: 1.2em;
-        z-index: 10000;
-      }
-      @media (orientation: portrait) {
-        #orientation-lock {
-          display: flex;
-        }
-        canvas,
-        #mobile-controls {
-          display: none;
-        }
-      }
-    </style>
-    <script type="module" crossorigin src="/jaakonseikkailut/assets/index-DuwCqLP5.js"></script>
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <script type="module" crossorigin src="/jaakonseikkailut/assets/index-BzuvtI1B.js"></script>
+    <link rel="stylesheet" crossorigin href="/jaakonseikkailut/assets/index-DYegKdZh.css">
   </head>
   <body>
     <div id="orientation-lock">Please rotate your device to landscape mode to play.</div>
