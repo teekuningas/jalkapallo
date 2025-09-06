@@ -46,11 +46,23 @@ export function createPlayer(world) {
   player.addChild(foot);
 
   const foot_upper = new Graphics();
-  foot_upper.rect(0, 0, 50, 20).fill(config.colors.playerSkin);
+  foot_upper
+    .rect(0, 0, 50, 20)
+    .fill(config.colors.playerSkin);
+
+  // pivot at the top-centre of the rectangle (the hip joint)
+  foot_upper.pivot.set(50 / 2, 0);
+
   foot.addChild(foot_upper);
 
   const foot_lower = new Graphics();
-  foot_lower.rect(0, 20, 50, 20).fill(config.colors.playerSkin);
+  foot_lower
+    .rect(0, 20, 50, 20)
+    .fill(config.colors.playerSkin);
+
+  // pivot at the top-centre of this rectangle (the knee joint)
+  foot_lower.pivot.set(50 / 2, 20);
+
   foot.addChild(foot_lower);
 
   player.width = 50;
