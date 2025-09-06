@@ -57,11 +57,14 @@ export function createPlayer(world) {
 
   const foot_lower = new Graphics();
   foot_lower
-    .rect(0, 20, 50, 20)
+    .rect(0, 0, 50, 20)
     .fill(config.colors.playerSkin);
 
-  // knee joint at the very left edge of the lower leg
-  foot_lower.pivot.set(0, 20);
+  // position this Graphics 20px below the upper leg
+  foot_lower.y = 20;
+
+  // pivot at its own top-left corner
+  foot_lower.pivot.set(0, 0);
 
   foot.addChild(foot_lower);
 
@@ -200,7 +203,7 @@ export function handleInputs(state, inputState, world) {
     // pivot about the inner edge: left edge for right kicks, right edge for left kicks
     player.foot_upper.pivot.set(dir > 0 ? 0 : FW, 0);
     player.foot_upper.x     = dir > 0 ? 0 : FW;
-    player.foot_lower.pivot.set(dir > 0 ? 0 : FW, 20);
+    player.foot_lower.pivot.set(dir > 0 ? 0 : FW, 0);
     player.foot_lower.x     = dir > 0 ? 0 : FW;
 
     // now swing and extend
@@ -222,7 +225,7 @@ export function handleInputs(state, inputState, world) {
     const FW = 50; // your foot graphic width
     player.foot_upper.pivot.set(dirDrag > 0 ? 0 : FW, 0);
     player.foot_upper.x     = dirDrag > 0 ? 0 : FW;
-    player.foot_lower.pivot.set(dirDrag > 0 ? 0 : FW, 20);
+    player.foot_lower.pivot.set(dirDrag > 0 ? 0 : FW, 0);
     player.foot_lower.x     = dirDrag > 0 ? 0 : FW;
 
     player.foot_upper.rotation = -0.2 * dirDrag;
