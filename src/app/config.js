@@ -5,10 +5,7 @@ export const config = {
   friction: 0.995, // closer to 1 → much less “air” drag
   ballRadius: 25,
   ballBounce: -0.6,
-  worldBounds: {
-    minX: -2000,
-    maxX: 2000,
-  },
+  
   colors: {
     background: 0xadd8e6,
     sun: 0xffff00,
@@ -26,4 +23,5 @@ export const config = {
     zoomPaddingY: 300,
   },
   groundHeight: 50,
+  wallWidth: 100,
 };

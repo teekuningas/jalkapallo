@@ -16,6 +16,8 @@ import {
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
+  const worldBounds = { minX: -2000, maxX: 2000 };
+
   // Create all graphics
   const background = createBackground(app, staticLayer);
   const sun = createSun(app, staticLayer);
@@ -23,7 +25,7 @@ export function init(app, layers) {
   const player = createPlayer(world);
   const ball = createBall(world);
   const text = createLevelText(world, 'Level 2');
-  const groundMarkers = createGroundMarkers(world);
+  const groundMarkers = createGroundMarkers(world, worldBounds, false);
   const kickIndicator = createKickIndicator(uiLayer);
 
   // Start player on the other side for level 2
@@ -41,6 +43,7 @@ export function init(app, layers) {
     groundMarkers,
     kickIndicator,
     // State properties
+    worldBounds,
     kickStart: null,
     ballVelocity: { x: 0, y: 0 },
     nextLevel: null,
@@ -60,10 +63,6 @@ export function update(state, delta, inputState, app, layers) {
   const stateAfterInput = handleInputs(state, inputState, layers.world);
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
   const finalState = updateCamera(stateAfterPhysics, app, layers);
-
-  if (finalState.player.x < 100) {
-    return { ...finalState, nextLevel: 'level1' };
-  }
 
   return finalState;
 }

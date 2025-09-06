@@ -90,13 +90,17 @@ export function createLevelText(world, textContent) {
   return text;
 }
 
-export function createGroundMarkers(world) {
+export function createGroundMarkers(world, worldBounds, hasWalls) {
   const groundMarkers = new Graphics();
   const stripeSpacing = 200;
   const stripeWidth = 5;
   const stripeHeight = 30;
-  const startX = Math.ceil(config.worldBounds.minX / stripeSpacing) * stripeSpacing;
-  for (let x = startX; x <= config.worldBounds.maxX; x += stripeSpacing) {
+
+  const minX = worldBounds.minX + (hasWalls ? config.wallWidth : 0);
+  const maxX = worldBounds.maxX - (hasWalls ? config.wallWidth : 0);
+
+  const startX = Math.ceil(minX / stripeSpacing) * stripeSpacing;
+  for (let x = startX; x <= maxX; x += stripeSpacing) {
     groundMarkers
       .beginFill(0x888888)
       .drawRect(x - stripeWidth / 2, 0 - stripeHeight, stripeWidth, stripeHeight)
@@ -104,6 +108,38 @@ export function createGroundMarkers(world) {
   }
   world.addChild(groundMarkers);
   return groundMarkers;
+}
+
+export function createWalls(world, worldBounds) {
+  const wallWidth = config.wallWidth;
+  const wallHeight = 8000;
+  const brickHeight = 50; // 1-length
+  const mortarHeight = 10; // 0.2-length
+
+  const createWall = (xPos) => {
+    const wall = new Graphics();
+    wall.x = xPos;
+    wall.y = 0;
+
+    for (let y = 0; y < wallHeight; y += brickHeight + mortarHeight) {
+      // Yellow brick
+      wall.beginFill(0xffd700); // "bricky yellow"
+      wall.drawRect(0, -y - brickHeight, wallWidth, brickHeight);
+      wall.endFill();
+
+      // Gray mortar
+      wall.beginFill(0x888888); // gray
+      wall.drawRect(0, -y - brickHeight - mortarHeight, wallWidth, mortarHeight);
+      wall.endFill();
+    }
+    world.addChild(wall);
+    return wall;
+  };
+
+  const leftWall = createWall(worldBounds.minX);
+  const rightWall = createWall(worldBounds.maxX - wallWidth);
+
+  return [leftWall, rightWall];
 }
 
 export function createKickIndicator(uiLayer) {
@@ -194,19 +230,27 @@ export function updatePhysics(state, delta) {
   }
 
   // World Boundaries
-  if (state.player.x < config.worldBounds.minX) {
-    state.player.x = config.worldBounds.minX;
-  }
-  if (state.player.x + state.player.width > config.worldBounds.maxX) {
-    state.player.x = config.worldBounds.maxX - state.player.width;
+  let leftBoundary = state.worldBounds.minX;
+  let rightBoundary = state.worldBounds.maxX;
+
+  if (state.walls) {
+    leftBoundary += config.wallWidth;
+    rightBoundary -= config.wallWidth;
   }
 
-  if (ball.x - config.ballRadius < config.worldBounds.minX) {
-    ball.x = config.worldBounds.minX + config.ballRadius;
+  if (state.player.x < leftBoundary) {
+    state.player.x = leftBoundary;
+  }
+  if (state.player.x + state.player.width > rightBoundary) {
+    state.player.x = rightBoundary - state.player.width;
+  }
+
+  if (ball.x - config.ballRadius < leftBoundary) {
+    ball.x = leftBoundary + config.ballRadius;
     ballVelocity.x *= config.ballBounce;
   }
-  if (ball.x + config.ballRadius > config.worldBounds.maxX) {
-    ball.x = config.worldBounds.maxX - config.ballRadius;
+  if (ball.x + config.ballRadius > rightBoundary) {
+    ball.x = rightBoundary - config.ballRadius;
     ballVelocity.x *= config.ballBounce;
   }
 
@@ -225,8 +269,12 @@ export function updateCamera(state, app, layers) {
   const scaleX = app.screen.width / requiredWidth;
   const scaleY = app.screen.height / requiredHeight;
 
+  const worldWidth = state.worldBounds.maxX - state.worldBounds.minX;
+  const minScale = app.screen.width / worldWidth;
+
   let desiredScale = Math.min(scaleX, scaleY);
   desiredScale = Math.min(1.0, desiredScale);
+  desiredScale = Math.max(minScale, desiredScale);
 
   const newScale = lerp(world.scale.x, desiredScale, config.camera.smoothing);
   world.scale.set(newScale);
