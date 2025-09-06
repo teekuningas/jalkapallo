@@ -196,6 +196,13 @@ export function handleInputs(state, inputState, world) {
       .moveTo(ballScreenPos.x, ballScreenPos.y)
       .lineTo(inputState.pointer.x, inputState.pointer.y)
       .stroke({ color: config.colors.kickIndicator, width: 3, alpha: 0.5 });
+
+    // Update foot direction dynamically while dragging
+    const dxDrag = inputState.pointer.x - ballScreenPos.x;
+    const dirDrag = dxDrag >= 0 ? 1 : -1;
+    player.foot_upper.rotation = -0.2 * dirDrag;
+    player.foot_lower.rotation =  0.2 * dirDrag;
+    player.foot_lower.x        = 10 * dirDrag;
   }
 
   if (kickStart && inputState.pointer.isUpThisFrame) {
