@@ -1,3 +1,4 @@
+import { config } from '../config.js';
 import {
   createPlayer,
   createBall,
@@ -12,12 +13,14 @@ import {
   createSun,
   createGround,
   createWalls,
+  createGoal,
+  updateProximityIndicator,
 } from './level-utils.js';
 
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -2000, maxX: 2000 };
+  const worldBounds = { minX: -1000, maxX: 1000 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
@@ -26,12 +29,17 @@ export function init(app, layers) {
   const player = createPlayer(world);
   const ball = createBall(world);
   const text = createLevelText(world, 'Level 1');
+  text.x = 0;
+  text.y = -300;
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
+  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 250, 0, 150, 200, 'left');
 
-  player.x = 0;
-  ball.x = 100;
+  player.x = -45;
+  ball.x = 45;
+
+  updateProximityIndicator(ball, player, world, null);
 
   const state = {
     // Static graphics
@@ -45,6 +53,7 @@ export function init(app, layers) {
     groundMarkers,
     kickIndicator,
     walls,
+    goal,
     // State properties
     worldBounds,
     kickStart: null,
@@ -65,7 +74,24 @@ export function init(app, layers) {
 export function update(state, delta, inputState, app, layers) {
   const stateAfterInput = handleInputs(state, inputState, layers.world);
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
-  const finalState = updateCamera(stateAfterPhysics, app, layers);
+  let finalState = updateCamera(stateAfterPhysics, app, layers);
+
+  // Win condition check
+  const { ball, goal } = finalState;
+  if (goal && !finalState.nextLevel) {
+    const goalShape = goal.goalShape;
+    if (goalShape.direction === 'left') {
+      if (
+        ball.x - config.ballRadius > goalShape.x &&
+        ball.x + config.ballRadius < goalShape.x + goalShape.width &&
+        ball.y - config.ballRadius > goalShape.y - goalShape.height
+      ) {
+        finalState = { ...finalState, nextLevel: 'level2' };
+      }
+    }
+    // NOTE: The same logic would need to be implemented for a 'right' facing goal
+    // if one is ever added to a level.
+  }
 
   return finalState;
 }

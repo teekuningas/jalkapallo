@@ -30,7 +30,7 @@ export function createGround(app, staticLayer) {
 export function createPlayer(world) {
   const player = new Container();
   player.x = 100;
-  player.y = 0 - 100; // groundLevelY is 0
+  player.y = 0; // groundLevelY is 0
   world.addChild(player);
 
   const head = new Graphics();
@@ -52,8 +52,14 @@ export function createPlayer(world) {
   const foot_lower = new Graphics();
   foot_lower.rect(0, 20, 50, 20).fill(config.colors.playerSkin);
   foot.addChild(foot_lower);
+
   player.width = 50;
-  player.height = 100;
+  player.height = 120;
+
+  // Set the pivot point to the bottom-center of the player's graphics.
+  // This means player.x and player.y will now refer to this point.
+  player.pivot.x = player.width / 2;
+  player.pivot.y = player.height;
 
   player.foot_upper = foot_upper;
   player.foot_lower = foot_lower;
@@ -81,7 +87,7 @@ export function createBall(world) {
 export function createLevelText(world, textContent) {
   const text = new Text({
     text: textContent,
-    style: { fontFamily: 'Arial', fontSize: 36, fill: 0xcccccc, align: 'center' },
+    style: { fontFamily: 'Arial', fontSize: 36, fill: 0xffffff, align: 'center' },
   });
   text.x = 400;
   text.y = -200;
@@ -148,6 +154,18 @@ export function createKickIndicator(uiLayer) {
   return kickIndicator;
 }
 
+export function updateProximityIndicator(ball, player, world, kickStart) {
+  const isKickable = isPlayerKickable(player, ball, world);
+  if (isKickable || kickStart) {
+    ball.ballBorder
+      .clear()
+      .circle(0, 0, config.ballRadius + 1)
+      .stroke({ color: config.colors.ballBorder, width: 3 });
+  } else {
+    ball.ballBorder.clear();
+  }
+}
+
 export function handleInputs(state, inputState, world) {
   let { player, ball, kickIndicator, kickStart, ballVelocity } = state;
 
@@ -189,27 +207,46 @@ export function handleInputs(state, inputState, world) {
   }
 
   // Proximity Indicator
-  if (isKickable || kickStart) {
-    ball.ballBorder
-      .clear()
-      .circle(0, 0, config.ballRadius + 1)
-      .stroke({ color: config.colors.ballBorder, width: 3 });
-  } else {
-    ball.ballBorder.clear();
-  }
+  updateProximityIndicator(ball, player, world, kickStart);
 
   return { ...state, player, kickStart, ballVelocity };
 }
 
 function isPlayerKickable(player, ball, world) {
   const ballScreenPos = world.toGlobal(ball.position);
-  const topLeft = world.toGlobal({ x: player.x, y: player.y });
-  const bottomRight = world.toGlobal({ x: player.x + player.width, y: player.y + player.height });
+  // Player's origin is now its center-bottom point.
+  const playerTopLeft = { x: player.x - player.width / 2, y: player.y - player.height };
+  const topLeft = world.toGlobal(playerTopLeft);
+  const bottomRight = world.toGlobal({ x: playerTopLeft.x + player.width, y: playerTopLeft.y + player.height });
   const rect = { left: topLeft.x, right: bottomRight.x, top: topLeft.y, bottom: bottomRight.y };
   const closestX = Math.max(rect.left, Math.min(ballScreenPos.x, rect.right));
   const closestY = Math.max(rect.top, Math.min(ballScreenPos.y, rect.bottom));
   const dist = Math.hypot(ballScreenPos.x - closestX, ballScreenPos.y - closestY);
   return dist < config.kickableDistance * world.scale.x;
+}
+
+function collideCircleWithRectangle(circle, rect) {
+  const closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.width));
+  const closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.height));
+
+  const dx = circle.x - closestX;
+  const dy = circle.y - closestY;
+  const distance = Math.sqrt(dx * dx + dy * dy);
+
+  if (distance < circle.radius) {
+    const overlap = circle.radius - distance;
+    const normalX = distance === 0 ? 1 : dx / distance;
+    const normalY = distance === 0 ? 0 : dy / distance;
+
+    return {
+      collided: true,
+      overlap,
+      normalX,
+      normalY,
+    };
+  }
+
+  return { collided: false };
 }
 
 export function updatePhysics(state, delta) {
@@ -238,11 +275,11 @@ export function updatePhysics(state, delta) {
     rightBoundary -= config.wallWidth;
   }
 
-  if (state.player.x < leftBoundary) {
-    state.player.x = leftBoundary;
+  if (state.player.x - state.player.width / 2 < leftBoundary) {
+    state.player.x = leftBoundary + state.player.width / 2;
   }
-  if (state.player.x + state.player.width > rightBoundary) {
-    state.player.x = rightBoundary - state.player.width;
+  if (state.player.x + state.player.width / 2 > rightBoundary) {
+    state.player.x = rightBoundary - state.player.width / 2;
   }
 
   if (ball.x - config.ballRadius < leftBoundary) {
@@ -252,6 +289,71 @@ export function updatePhysics(state, delta) {
   if (ball.x + config.ballRadius > rightBoundary) {
     ball.x = rightBoundary - config.ballRadius;
     ballVelocity.x *= config.ballBounce;
+  }
+
+  // Goal collision
+  if (state.goal) {
+    const { colliders, x, y } = state.goal;
+    const ballCircle = { x: ball.x, y: ball.y, radius: config.ballRadius };
+    const collisions = [];
+
+    for (const rect of colliders) {
+      const absoluteRect = {
+        x: rect.x + x,
+        y: rect.y + y,
+        width: rect.width,
+        height: rect.height,
+      };
+      const collision = collideCircleWithRectangle(ballCircle, absoluteRect);
+      if (collision.collided) {
+        collisions.push(collision);
+      }
+    }
+
+    if (collisions.length > 0) {
+      if (collisions.length > 1) {
+        // Corner collision
+        let totalNormalX = 0;
+        let totalNormalY = 0;
+        let maxOverlap = 0;
+
+        for (const c of collisions) {
+          totalNormalX += c.normalX;
+          totalNormalY += c.normalY;
+          if (c.overlap > maxOverlap) {
+            maxOverlap = c.overlap;
+          }
+        }
+
+        const avgNormalX = totalNormalX / collisions.length;
+        const avgNormalY = totalNormalY / collisions.length;
+        const len = Math.sqrt(avgNormalX * avgNormalX + avgNormalY * avgNormalY);
+        const finalNormalX = len > 0 ? avgNormalX / len : 1;
+        const finalNormalY = len > 0 ? avgNormalY / len : 0;
+
+        ball.x += finalNormalX * maxOverlap;
+        ball.y += finalNormalY * maxOverlap;
+
+        const dotProduct = ballVelocity.x * finalNormalX + ballVelocity.y * finalNormalY;
+        ballVelocity.x -= 2 * dotProduct * finalNormalX;
+        ballVelocity.y -= 2 * dotProduct * finalNormalY;
+
+        ballVelocity.x *= -config.ballBounce;
+        ballVelocity.y *= -config.ballBounce;
+      } else {
+        // Single collision
+        const collision = collisions[0];
+        ball.x += collision.normalX * collision.overlap;
+        ball.y += collision.normalY * collision.overlap;
+
+        const dotProduct = ballVelocity.x * collision.normalX + ballVelocity.y * collision.normalY;
+        ballVelocity.x -= 2 * dotProduct * collision.normalX;
+        ballVelocity.y -= 2 * dotProduct * collision.normalY;
+
+        ballVelocity.x *= -config.ballBounce;
+        ballVelocity.y *= -config.ballBounce;
+      }
+    }
   }
 
   return { ...state, ball, ballVelocity };
@@ -282,6 +384,64 @@ export function updateCamera(state, app, layers) {
   world.pivot.x = lerp(world.pivot.x, focusPointX, config.camera.smoothing);
   world.position.set(app.screen.width / 2, app.screen.height - config.groundHeight);
   return state; // Camera update does not change state
+}
+
+export function createGoal(world, x, y, width, height, direction) {
+  const goal = new Container();
+  goal.x = x;
+  goal.y = y;
+  world.addChild(goal);
+
+  const postThickness = 10;
+  const goalPostColor = 0xcccccc; // A light gray for the posts
+  const goalNetColor = 0xffffff;
+  const goalNetAlpha = 0.5;
+
+  const colliders = [];
+  const posts = new Graphics();
+  posts.beginFill(goalPostColor);
+
+  if (direction === 'left') {
+    const topPost = { x: 0, y: -height, width: width, height: postThickness };
+    const backPost = { x: width - postThickness, y: -height, width: postThickness, height: height };
+    colliders.push(topPost, backPost);
+
+    posts.drawRect(topPost.x, topPost.y, topPost.width, topPost.height);
+    posts.drawRect(backPost.x, backPost.y, backPost.width, backPost.height);
+
+  } else if (direction === 'right') {
+    const topPost = { x: 0, y: -height, width: width, height: postThickness };
+    const backPost = { x: 0, y: -height, width: postThickness, height: height };
+    colliders.push(topPost, backPost);
+
+    posts.drawRect(topPost.x, topPost.y, topPost.width, topPost.height);
+    posts.drawRect(backPost.x, backPost.y, backPost.width, backPost.height);
+  }
+  posts.endFill();
+  goal.addChild(posts);
+
+  const net = new Graphics();
+  net.beginFill(0, 0); // transparent fill
+  net.lineStyle(2, goalNetColor, goalNetAlpha);
+
+  // Draw net pattern
+  for (let i = 1; i < 10; i++) {
+    const X = (i / 10) * width;
+    net.moveTo(X, 0);
+    net.lineTo(X, -height);
+  }
+  for (let i = 1; i < 10; i++) {
+    const Y = (-i / 10) * height;
+    net.moveTo(0, Y);
+    net.lineTo(width, Y);
+  }
+  net.endFill();
+  goal.addChild(net);
+
+  goal.colliders = colliders;
+  goal.goalShape = { x, y, width, height, direction };
+
+  return goal;
 }
 
 export function handleResize(app, layers, state) {
