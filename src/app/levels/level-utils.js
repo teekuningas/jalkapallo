@@ -421,7 +421,7 @@ export function updateCamera(state, app, layers) {
   const minScale = app.screen.width / worldWidth;
 
   let desiredScale = Math.min(scaleX, scaleY);
-  desiredScale = Math.min(1.0, desiredScale);
+  desiredScale = Math.min(config.camera.maxZoomIn, desiredScale);
   desiredScale = Math.max(minScale, desiredScale);
 
   const newScale = lerp(world.scale.x, desiredScale, config.camera.smoothing);
