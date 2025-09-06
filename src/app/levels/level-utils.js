@@ -50,8 +50,8 @@ export function createPlayer(world) {
     .rect(0, 0, 50, 20)
     .fill(config.colors.playerSkin);
 
-  // pivot at the top-centre of the rectangle (the hip joint)
-  foot_upper.pivot.set(50 / 2, 0);
+  // hip joint at the very left edge
+  foot_upper.pivot.set(0, 0);
 
   foot.addChild(foot_upper);
 
@@ -60,8 +60,8 @@ export function createPlayer(world) {
     .rect(0, 20, 50, 20)
     .fill(config.colors.playerSkin);
 
-  // pivot at the top-centre of this rectangle (the knee joint)
-  foot_lower.pivot.set(50 / 2, 20);
+  // knee joint at the very left edge of the lower leg
+  foot_lower.pivot.set(0, 20);
 
   foot.addChild(foot_lower);
 
@@ -196,10 +196,17 @@ export function handleInputs(state, inputState, world) {
     const dx = inputState.pointer.x - ballScreenPos.x;
     const dir = dx >= 0 ? 1 : -1;
 
-    // swing foot in the correct direction
+    const FW = 50; // your foot graphic width
+    // pivot about the inner edge: left edge for right kicks, right edge for left kicks
+    player.foot_upper.pivot.set(dir > 0 ? 0 : FW, 0);
+    player.foot_upper.x     = dir > 0 ? 0 : FW;
+    player.foot_lower.pivot.set(dir > 0 ? 0 : FW, 20);
+    player.foot_lower.x     = dir > 0 ? 0 : FW;
+
+    // now swing and extend
     player.foot_upper.rotation = -0.2 * dir;
     player.foot_lower.rotation =  0.2 * dir;
-    player.foot_lower.x        = 10 * dir;
+    player.foot_lower.x       += 10 * dir;
   }
 
   if (kickStart && inputState.pointer.isDown) {
@@ -212,9 +219,15 @@ export function handleInputs(state, inputState, world) {
     // Update foot direction dynamically while dragging
     const dxDrag = inputState.pointer.x - ballScreenPos.x;
     const dirDrag = dxDrag >= 0 ? 1 : -1;
+    const FW = 50; // your foot graphic width
+    player.foot_upper.pivot.set(dirDrag > 0 ? 0 : FW, 0);
+    player.foot_upper.x     = dirDrag > 0 ? 0 : FW;
+    player.foot_lower.pivot.set(dirDrag > 0 ? 0 : FW, 20);
+    player.foot_lower.x     = dirDrag > 0 ? 0 : FW;
+
     player.foot_upper.rotation = -0.2 * dirDrag;
     player.foot_lower.rotation =  0.2 * dirDrag;
-    player.foot_lower.x        = 10 * dirDrag;
+    player.foot_lower.x       += 10 * dirDrag;
   }
 
   if (kickStart && inputState.pointer.isUpThisFrame) {
@@ -226,9 +239,14 @@ export function handleInputs(state, inputState, world) {
       ballVelocity = { x: dx * kickPower, y: dy * kickPower };
     }
     kickStart = null;
+    // reset pivots and positions
+    player.foot_upper.pivot.set(0, 0);
+    player.foot_upper.x       = 0;
+    player.foot_lower.pivot.set(0, 20);
+    player.foot_lower.x       = 0;
+
     player.foot_upper.rotation = 0;
     player.foot_lower.rotation = 0;
-    player.foot_lower.x = 0;
   }
 
   // Proximity Indicator
