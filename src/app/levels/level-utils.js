@@ -506,3 +506,24 @@ export function handleResize(app, layers, state) {
     .fill(config.colors.ground);
   world.position.set(app.screen.width / 2, app.screen.height - config.groundHeight);
 }
+
+// returns true if ball is fully inside the goal rectangle
+import { config } from '../config.js';
+export function checkGoal(ball, goal) {
+  if (!ball || !goal) return false;
+  const { x, y, width, height, direction } = goal.goalShape;
+  if (direction === 'left') {
+    return (
+      ball.x - config.ballRadius > x &&
+      ball.x + config.ballRadius < x + width &&
+      ball.y - config.ballRadius > y - height
+    );
+  } else {
+    // right‐facing goal
+    return (
+      ball.x + config.ballRadius < x + width &&
+      ball.x - config.ballRadius > x &&
+      ball.y - config.ballRadius > y - height
+    );
+  }
+}

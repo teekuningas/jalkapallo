@@ -15,6 +15,7 @@ import {
   createWalls,
   createGoal,
   updateProximityIndicator,
+  checkGoal,
 } from './level-utils.js';
 
 export function init(app, layers) {
@@ -78,19 +79,8 @@ export function update(state, delta, inputState, app, layers) {
 
   // Win condition check
   const { ball, goal } = finalState;
-  if (goal && !finalState.nextLevel) {
-    const goalShape = goal.goalShape;
-    if (goalShape.direction === 'left') {
-      if (
-        ball.x - config.ballRadius > goalShape.x &&
-        ball.x + config.ballRadius < goalShape.x + goalShape.width &&
-        ball.y - config.ballRadius > goalShape.y - goalShape.height
-      ) {
-        finalState = { ...finalState, nextLevel: 'level2' };
-      }
-    }
-    // NOTE: The same logic would need to be implemented for a 'right' facing goal
-    // if one is ever added to a level.
+  if (checkGoal(ball, goal) && !finalState.nextLevel) {
+    finalState = { ...finalState, nextLevel: 'level2' };
   }
 
   return finalState;
