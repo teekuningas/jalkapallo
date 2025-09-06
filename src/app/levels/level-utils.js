@@ -245,7 +245,7 @@ export function handleInputs(state, inputState, world) {
     // reset pivots and positions
     player.foot_upper.pivot.set(0, 0);
     player.foot_upper.x       = 0;
-    player.foot_lower.pivot.set(0, 20);
+    player.foot_lower.pivot.set(0, 0);
     player.foot_lower.x       = 0;
 
     player.foot_upper.rotation = 0;
