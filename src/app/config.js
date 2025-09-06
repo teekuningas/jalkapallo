@@ -21,7 +21,8 @@ export const config = {
     smoothing: 0.08,
     zoomPaddingX: 400,
     zoomPaddingY: 300,
-    maxZoomIn: 1.5   // allow up to 150% zoom when player & ball are very close
+    maxZoomIn: 1.5,      // allow up to 150% zoom when player & ball are very close
+    minZoomOut: 0.5      // allow up to 2× more zoom‐out than the natural world‐width clamp
   },
   groundHeight: 50,
   wallWidth: 100,

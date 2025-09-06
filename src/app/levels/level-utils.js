@@ -418,7 +418,8 @@ export function updateCamera(state, app, layers) {
   const scaleY = app.screen.height / requiredHeight;
 
   const worldWidth = state.worldBounds.maxX - state.worldBounds.minX;
-  const minScale = app.screen.width / worldWidth;
+  // base “fit‐to‐width” scale, then allow additional zoom‐out by minZoomOut factor
+  const minScale = (app.screen.width / worldWidth) * config.camera.minZoomOut;
 
   let desiredScale = Math.min(scaleX, scaleY);
   desiredScale = Math.min(config.camera.maxZoomIn, desiredScale);
