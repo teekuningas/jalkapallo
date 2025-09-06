@@ -179,9 +179,15 @@ export function handleInputs(state, inputState, world) {
 
   if (isKickable && inputState.pointer.isDownThisFrame) {
     kickStart = { x: inputState.pointer.x, y: inputState.pointer.y };
-    player.foot_upper.rotation = -0.2;
-    player.foot_lower.rotation = 0.2;
-    player.foot_lower.x = 10;
+
+    // compute screen‐space direction: +1 = right kick, -1 = left kick
+    const dx = inputState.pointer.x - ballScreenPos.x;
+    const dir = dx >= 0 ? 1 : -1;
+
+    // swing foot in the correct direction
+    player.foot_upper.rotation = -0.2 * dir;
+    player.foot_lower.rotation =  0.2 * dir;
+    player.foot_lower.x        = 10 * dir;
   }
 
   if (kickStart && inputState.pointer.isDown) {
