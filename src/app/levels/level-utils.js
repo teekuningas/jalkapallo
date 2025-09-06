@@ -508,7 +508,6 @@ export function handleResize(app, layers, state) {
 }
 
 // returns true if ball is fully inside the goal rectangle
-import { config } from '../config.js';
 export function checkGoal(ball, goal) {
   if (!ball || !goal) return false;
   const { x, y, width, height, direction } = goal.goalShape;
