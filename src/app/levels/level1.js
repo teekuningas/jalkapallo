@@ -14,7 +14,6 @@ import {
   createGround,
   createWalls,
   createGoal,
-  updateProximityIndicator,
   checkGoal,
 } from './level-utils.js';
 
@@ -39,8 +38,6 @@ export function init(app, layers) {
 
   player.x = -45;
   ball.x = 45;
-
-  updateProximityIndicator(ball, player, world, null);
 
   const state = {
     // Static graphics
