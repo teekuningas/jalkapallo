@@ -44,9 +44,9 @@ window.addEventListener('DOMContentLoaded', () => {
 
       app.stage.interactive = true;
       app.stage.on('pointerdown', (e) => {
-        if (e.originalEvent && e.originalEvent.target) {
-          const target = e.originalEvent.target;
-          if (target.id === 'left-btn' || target.id === 'right-btn') {
+        if (e.originalEvent) {
+          const target = e.originalEvent.target || e.originalEvent.srcElement;
+          if (target && (target.id === 'left-btn' || target.id === 'right-btn')) {
             return;
           }
         }
@@ -58,9 +58,9 @@ window.addEventListener('DOMContentLoaded', () => {
         inputState.pointer.isUpThisFrame = true;
       });
       app.stage.on('pointermove', (e) => {
-        if (e.originalEvent && e.originalEvent.target) {
-          const target = e.originalEvent.target;
-          if (target.id === 'left-btn' || target.id === 'right-btn') {
+        if (e.originalEvent) {
+          const target = e.originalEvent.target || e.originalEvent.srcElement;
+          if (target && (target.id === 'left-btn' || target.id === 'right-btn')) {
             return;
           }
         }
