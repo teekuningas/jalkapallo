@@ -165,9 +165,9 @@ export function createKickIndicator(uiLayer) {
   return kickIndicator;
 }
 
-export function updateProximityIndicator(ball, player, world, kickStart) {
+export function updateProximityIndicator(ball, player, world) {
   const isKickable = isPlayerKickable(player, ball, world);
-  if (isKickable || kickStart) {
+  if (isKickable) {
     ball.ballBorder
       .clear()
       .circle(0, 0, config.ballRadius + 1)
@@ -185,9 +185,10 @@ export function handleInputs(state, inputState, world) {
   if (inputState.keys['d'] || inputState.keys['ArrowRight']) player.x += config.playerSpeed;
 
   // Kicking Logic
+  updateProximityIndicator(ball, player, world);
   const isKickable = isPlayerKickable(player, ball, world);
 
-  if (isKickable && inputState.pointer.isDownThisFrame) {
+  if (inputState.pointer.isDownThisFrame) {
     kickStart = { x: inputState.pointer.x, y: inputState.pointer.y };
     updatePlayerFoot(player, ball, world, inputState);
   }
@@ -214,9 +215,6 @@ export function handleInputs(state, inputState, world) {
     kickStart = null;
     resetPlayerFoot(player);
   }
-
-  // Proximity Indicator
-  updateProximityIndicator(ball, player, world, kickStart);
 
   return { ...state, player, kickStart, ballVelocity };
 }
