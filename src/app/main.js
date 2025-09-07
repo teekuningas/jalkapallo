@@ -44,9 +44,11 @@ window.addEventListener('DOMContentLoaded', () => {
 
       app.stage.interactive = true;
       app.stage.on('pointerdown', (e) => {
-        const target = e.originalEvent.target;
-        if (target.id === 'left-btn' || target.id === 'right-btn') {
-          return;
+        if (e.originalEvent && e.originalEvent.target) {
+          const target = e.originalEvent.target;
+          if (target.id === 'left-btn' || target.id === 'right-btn') {
+            return;
+          }
         }
         inputState.pointer.isDown = true;
         inputState.pointer.isDownThisFrame = true;
