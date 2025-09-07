@@ -29,7 +29,7 @@ export function createGround(app, staticLayer) {
 
 export function createPlayer(world) {
   const player = new Container();
-  player.x = 100;
+  player.x = 0;
   player.y = 0; // groundLevelY is 0
   world.addChild(player);
 
@@ -46,9 +46,7 @@ export function createPlayer(world) {
   player.addChild(foot);
 
   const foot_upper = new Graphics();
-  foot_upper
-    .rect(0, 0, 50, 20)
-    .fill(config.colors.playerSkin);
+  foot_upper.rect(0, 0, 50, 20).fill(config.colors.playerSkin);
 
   // hip joint at the very left edge
   foot_upper.pivot.set(0, 0);
@@ -56,9 +54,7 @@ export function createPlayer(world) {
   foot.addChild(foot_upper);
 
   const foot_lower = new Graphics();
-  foot_lower
-    .rect(0, 0, 50, 20)
-    .fill(config.colors.playerSkin);
+  foot_lower.rect(0, 0, 50, 20).fill(config.colors.playerSkin);
 
   // position this Graphics 20px below the upper leg
   foot_lower.y = 20;
@@ -85,7 +81,7 @@ export function createPlayer(world) {
 export function createBall(world) {
   const ball = new Graphics();
   ball.circle(0, 0, config.ballRadius).fill(config.colors.ball);
-  ball.x = 200;
+  ball.x = 0;
   ball.y = 0 - config.ballRadius; // groundLevelY is 0
   ball.interactive = true;
   ball.cursor = 'pointer';
@@ -134,8 +130,8 @@ export function createGroundMarkers(world, worldBounds, hasWalls) {
 export function createWalls(world, worldBounds) {
   const wallWidth = config.wallWidth;
   const wallHeight = 8000;
-  const brickHeight = 50; // 1-length
-  const mortarHeight = 10; // 0.2-length
+  const brickHeight = 50;
+  const mortarHeight = 10;
 
   const createWall = (xPos) => {
     const wall = new Graphics();
@@ -189,67 +185,34 @@ export function handleInputs(state, inputState, world) {
   if (inputState.keys['d'] || inputState.keys['ArrowRight']) player.x += config.playerSpeed;
 
   // Kicking Logic
-  const ballScreenPos = world.toGlobal(ball.position);
   const isKickable = isPlayerKickable(player, ball, world);
 
   if (isKickable && inputState.pointer.isDownThisFrame) {
     kickStart = { x: inputState.pointer.x, y: inputState.pointer.y };
-
-    // compute screen‐space direction: +1 = right kick, -1 = left kick
-    const dx = inputState.pointer.x - ballScreenPos.x;
-    const dir = dx >= 0 ? 1 : -1;
-
-    const FW = 50; // your foot graphic width
-    // pivot about the inner edge: left edge for right kicks, right edge for left kicks
-    player.foot_upper.pivot.set(dir > 0 ? 0 : FW, 0);
-    player.foot_upper.x     = dir > 0 ? 0 : FW;
-    player.foot_lower.pivot.set(dir > 0 ? 0 : FW, 0);
-    player.foot_lower.x     = dir > 0 ? 0 : FW;
-
-    // now swing and extend
-    player.foot_upper.rotation = -0.2 * dir;
-    player.foot_lower.rotation =  0.2 * dir;
-    player.foot_lower.x       += 10 * dir;
+    updatePlayerFoot(player, ball, world, inputState);
   }
 
   if (kickStart && inputState.pointer.isDown) {
+    const ballScreenPos = world.toGlobal(ball.position);
     kickIndicator
       .clear()
       .moveTo(ballScreenPos.x, ballScreenPos.y)
       .lineTo(inputState.pointer.x, inputState.pointer.y)
       .stroke({ color: config.colors.kickIndicator, width: 3, alpha: 0.5 });
-
-    // Update foot direction dynamically while dragging
-    const dxDrag = inputState.pointer.x - ballScreenPos.x;
-    const dirDrag = dxDrag >= 0 ? 1 : -1;
-    const FW = 50; // your foot graphic width
-    player.foot_upper.pivot.set(dirDrag > 0 ? 0 : FW, 0);
-    player.foot_upper.x     = dirDrag > 0 ? 0 : FW;
-    player.foot_lower.pivot.set(dirDrag > 0 ? 0 : FW, 0);
-    player.foot_lower.x     = dirDrag > 0 ? 0 : FW;
-
-    player.foot_upper.rotation = -0.2 * dirDrag;
-    player.foot_lower.rotation =  0.2 * dirDrag;
-    player.foot_lower.x       += 10 * dirDrag;
+    updatePlayerFoot(player, ball, world, inputState);
   }
 
   if (kickStart && inputState.pointer.isUpThisFrame) {
     kickIndicator.clear();
     if (isPlayerKickable(player, ball, world)) {
+      const ballScreenPos = world.toGlobal(ball.position);
       const kickPower = 0.1 / world.scale.x;
       const dx = inputState.pointer.x - ballScreenPos.x;
       const dy = inputState.pointer.y - ballScreenPos.y;
       ballVelocity = { x: dx * kickPower, y: dy * kickPower };
     }
     kickStart = null;
-    // reset pivots and positions
-    player.foot_upper.pivot.set(0, 0);
-    player.foot_upper.x       = 0;
-    player.foot_lower.pivot.set(0, 0);
-    player.foot_lower.x       = 0;
-
-    player.foot_upper.rotation = 0;
-    player.foot_lower.rotation = 0;
+    resetPlayerFoot(player);
   }
 
   // Proximity Indicator
@@ -258,12 +221,44 @@ export function handleInputs(state, inputState, world) {
   return { ...state, player, kickStart, ballVelocity };
 }
 
+function updatePlayerFoot(player, ball, world, inputState) {
+  const ballScreenPos = world.toGlobal(ball.position);
+  const dx = inputState.pointer.x - ballScreenPos.x;
+  const dir = dx >= 0 ? 1 : -1;
+  const FW = 50; // foot graphic width
+
+  // Pivot about the inner edge: left edge for right kicks, right edge for left kicks
+  player.foot_upper.pivot.set(dir > 0 ? 0 : FW, 0);
+  player.foot_upper.x = dir > 0 ? 0 : FW;
+  player.foot_lower.pivot.set(dir > 0 ? 0 : FW, 0);
+  player.foot_lower.x = dir > 0 ? 0 : FW;
+
+  // Now swing and extend
+  player.foot_upper.rotation = -0.2 * dir;
+  player.foot_lower.rotation = 0.2 * dir;
+  player.foot_lower.x += 10 * dir;
+}
+
+function resetPlayerFoot(player) {
+  // Reset pivots and positions
+  player.foot_upper.pivot.set(0, 0);
+  player.foot_upper.x = 0;
+  player.foot_lower.pivot.set(0, 0);
+  player.foot_lower.x = 0;
+
+  player.foot_upper.rotation = 0;
+  player.foot_lower.rotation = 0;
+}
+
 function isPlayerKickable(player, ball, world) {
   const ballScreenPos = world.toGlobal(ball.position);
   // Player's origin is now its center-bottom point.
   const playerTopLeft = { x: player.x - player.width / 2, y: player.y - player.height };
   const topLeft = world.toGlobal(playerTopLeft);
-  const bottomRight = world.toGlobal({ x: playerTopLeft.x + player.width, y: playerTopLeft.y + player.height });
+  const bottomRight = world.toGlobal({
+    x: playerTopLeft.x + player.width,
+    y: playerTopLeft.y + player.height,
+  });
   const rect = { left: topLeft.x, right: bottomRight.x, top: topLeft.y, bottom: bottomRight.y };
   const closestX = Math.max(rect.left, Math.min(ballScreenPos.x, rect.right));
   const closestY = Math.max(rect.top, Math.min(ballScreenPos.y, rect.bottom));
@@ -455,7 +450,6 @@ export function createGoal(world, x, y, width, height, direction) {
 
     posts.drawRect(topPost.x, topPost.y, topPost.width, topPost.height);
     posts.drawRect(backPost.x, backPost.y, backPost.width, backPost.height);
-
   } else if (direction === 'right') {
     const topPost = { x: 0, y: -height, width: width, height: postThickness };
     const backPost = { x: 0, y: -height, width: postThickness, height: height };

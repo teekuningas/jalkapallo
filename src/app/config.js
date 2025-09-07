@@ -5,7 +5,7 @@ export const config = {
   friction: 0.999, // closer to 1 → much less “air” drag
   ballRadius: 25,
   ballBounce: -0.6,
-  
+
   colors: {
     background: 0xadd8e6,
     sun: 0xffff00,
@@ -21,8 +21,8 @@ export const config = {
     smoothing: 0.08,
     zoomPaddingX: 400,
     zoomPaddingY: 300,
-    maxZoomIn: 1.5,      // allow up to 150% zoom when player & ball are very close
-    minZoomOut: 0.5      // allow up to 2× more zoom‐out than the natural world‐width clamp
+    maxZoomIn: 1.5, // allow up to 150% zoom when player & ball are very close
+    minZoomOut: 0.5, // allow up to 2× more zoom‐out than the natural world‐width clamp
   },
   groundHeight: 50,
   wallWidth: 100,
