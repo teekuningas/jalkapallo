@@ -58,6 +58,12 @@ window.addEventListener('DOMContentLoaded', () => {
         inputState.pointer.isUpThisFrame = true;
       });
       app.stage.on('pointermove', (e) => {
+        if (e.originalEvent && e.originalEvent.target) {
+          const target = e.originalEvent.target;
+          if (target.id === 'left-btn' || target.id === 'right-btn') {
+            return;
+          }
+        }
         inputState.pointer.x = e.global.x;
         inputState.pointer.y = e.global.y;
       });
