@@ -6,6 +6,10 @@ body {
 }
 canvas {
   display: block;
+  touch-action: none;                  /* disable all default gestures */
+  -ms-touch-action: none;
+  -webkit-user-select: none;           /* no text selection on long-press */
+  -webkit-touch-callout: none;         /* disable iOS touch-callout (no haptic) */
 }
 #mobile-controls {
   position: absolute;
