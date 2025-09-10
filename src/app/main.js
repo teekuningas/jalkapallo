@@ -33,7 +33,7 @@ window.addEventListener('DOMContentLoaded', () => {
       document.body.appendChild(app.canvas);
 
       // Prevent default browser actions like long-press menu/vibration
-      app.canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+      window.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
       window.addEventListener('contextmenu', (e) => e.preventDefault());
 
       const layers = { staticLayer, world, uiLayer };
