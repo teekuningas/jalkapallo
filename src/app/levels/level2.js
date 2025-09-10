@@ -2,7 +2,6 @@ import { config } from '../config.js';
 import {
   createPlayer,
   createBall,
-  createLevelText,
   createGroundMarkers,
   createKickIndicator,
   handleInputs,
@@ -15,7 +14,18 @@ import {
   createWalls,
   createGoal,
   checkGoal,
+  initEventsState,
+  updateEvents,
+  getUIMessageFromEventState,
 } from './level-utils.js';
+
+export const script = [
+  {
+    id: 'level2-title',
+    trigger: { type: 'time', time: 1000 },
+    action: { type: 'showText', text: 'Taso 2', duration: 3000 },
+  },
+];
 
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
@@ -28,9 +38,6 @@ export function init(app, layers) {
   const ground = createGround(app, staticLayer);
   const player = createPlayer(world);
   const ball = createBall(world);
-  const text = createLevelText(world, 'Level 2');
-  text.x = 0;
-  text.y = -300;
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
@@ -49,7 +56,6 @@ export function init(app, layers) {
     // Dynamic entities
     player,
     ball,
-    text,
     groundMarkers,
     kickIndicator,
     walls,
@@ -60,6 +66,8 @@ export function init(app, layers) {
     ballVelocity: { x: 0, y: 0 },
     nextLevel: null,
     onResize: null, // Placeholder
+    eventState: initEventsState(),
+    uiMessage: null,
   };
 
   // The resize handler closes over the state
@@ -72,7 +80,11 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers) {
-  const stateAfterInput = handleInputs(state, inputState, layers.world);
+  const { newState: stateAfterInput, gameEvents } = handleInputs(state, inputState, layers.world);
+
+  const newEventState = updateEvents(state.eventState, script, state, gameEvents, delta);
+  const uiMessage = getUIMessageFromEventState(newEventState);
+
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
   let finalState = updateCamera(stateAfterPhysics, app, layers);
 
@@ -82,5 +94,5 @@ export function update(state, delta, inputState, app, layers) {
     finalState = { ...finalState, nextLevel: 'level1' };
   }
 
-  return finalState;
+  return { ...finalState, eventState: newEventState, uiMessage };
 }

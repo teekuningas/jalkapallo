@@ -2,6 +2,8 @@ import * as level1 from './levels/level1.js';
 import * as level2 from './levels/level2.js';
 
 export function startGame(app, inputState, layers) {
+  const storyMessageElement = document.getElementById('story-message');
+
   const levels = {
     level1: level1,
     level2: level2,
@@ -45,6 +47,11 @@ export function startGame(app, inputState, layers) {
     // 1. Delegate all update logic to the current level
     const newState = levels[currentLevelName].update(levelState, delta, inputState, app, layers);
     levelState = newState;
+
+    // Update UI from state
+    if (storyMessageElement) {
+      storyMessageElement.innerText = levelState.uiMessage || '';
+    }
 
     // 2. Check for level change request
     if (levelState.nextLevel && levelState.nextLevel !== currentLevelName) {

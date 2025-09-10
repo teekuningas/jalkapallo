@@ -2,7 +2,6 @@ import { config } from '../config.js';
 import {
   createPlayer,
   createBall,
-  createLevelText,
   createGroundMarkers,
   createKickIndicator,
   handleInputs,
@@ -15,7 +14,73 @@ import {
   createWalls,
   createGoal,
   checkGoal,
+  initEventsState,
+  updateEvents,
+  getUIMessageFromEventState,
 } from './level-utils.js';
+
+export const script = [
+  {
+    id: 'intro1',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      text: 'Tervetuloa jalkapallon ihmeelliseen maailmaan!',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'intro2',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'intro3',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      text: 'tai koskettamalla vasemman laidan painikkeita.',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'kickHelp1',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      text: 'Ollessasi lähellä palloa, voit potkaista sitä',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'kickHelp2',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      text: 'klikkaamalla tai koskettamalla näyttöä maailmassa kohtaan,',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'kickHelp3',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      text: 'jonka suuntaan haluaisit pallon lähtevän.',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'firstKick',
+    trigger: { type: 'event', name: 'ballKicked' },
+    action: { type: 'showText', text: 'Erinomaista, juuri noin!', duration: 3000 },
+    once: true,
+  },
+];
 
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
@@ -28,9 +93,6 @@ export function init(app, layers) {
   const ground = createGround(app, staticLayer);
   const player = createPlayer(world);
   const ball = createBall(world);
-  const text = createLevelText(world, 'Level 1');
-  text.x = 0;
-  text.y = -300;
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
@@ -47,7 +109,6 @@ export function init(app, layers) {
     // Dynamic entities
     player,
     ball,
-    text,
     groundMarkers,
     kickIndicator,
     walls,
@@ -58,6 +119,8 @@ export function init(app, layers) {
     ballVelocity: { x: 0, y: 0 },
     nextLevel: null,
     onResize: null, // Placeholder
+    eventState: initEventsState(),
+    uiMessage: null,
   };
 
   // The resize handler closes over the state
@@ -70,7 +133,11 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers) {
-  const stateAfterInput = handleInputs(state, inputState, layers.world);
+  const { newState: stateAfterInput, gameEvents } = handleInputs(state, inputState, layers.world);
+
+  const newEventState = updateEvents(state.eventState, script, state, gameEvents, delta);
+  const uiMessage = getUIMessageFromEventState(newEventState);
+
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
   let finalState = updateCamera(stateAfterPhysics, app, layers);
 
@@ -80,5 +147,5 @@ export function update(state, delta, inputState, app, layers) {
     finalState = { ...finalState, nextLevel: 'level2' };
   }
 
-  return finalState;
+  return { ...finalState, eventState: newEventState, uiMessage };
 }
