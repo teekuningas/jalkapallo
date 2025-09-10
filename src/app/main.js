@@ -45,7 +45,6 @@ window.addEventListener('DOMContentLoaded', () => {
       app.stage.interactive = true;
       app.stage.on('pointerdown', (e) => {
         if (e.originalEvent) {
-          e.originalEvent.preventDefault(); // ← stop the default long-press
           const target = e.originalEvent.target || e.originalEvent.srcElement;
           if (target && (target.id === 'left-btn' || target.id === 'right-btn')) {
             return;
@@ -57,15 +56,12 @@ window.addEventListener('DOMContentLoaded', () => {
         inputState.pointer.isDownThisFrame = true;
       });
       app.stage.on('pointerup', (e) => {
-        if (e.originalEvent) {
-          e.originalEvent.preventDefault();
-        }
         inputState.pointer.isDown = false;
         inputState.pointer.isUpThisFrame = true;
       });
       app.stage.on('pointermove', (e) => {
+        e.preventDefault(); // stop the default long-press
         if (e.originalEvent) {
-          e.originalEvent.preventDefault();
           const target = e.originalEvent.target || e.originalEvent.srcElement;
           if (target && (target.id === 'left-btn' || target.id === 'right-btn')) {
             return;
@@ -105,7 +101,6 @@ window.addEventListener('DOMContentLoaded', () => {
         leftBtn.classList.remove('pressed');
         leftBtn.releasePointerCapture(e.pointerId);
       });
-
       rightBtn.addEventListener('pointerdown', (e) => {
         e.preventDefault();
         inputState.keys['d'] = true;
