@@ -37,24 +37,27 @@ export function createPlayer(world) {
   head.rect(0, 0, 50, 40).fill(config.colors.playerSkin);
   player.addChild(head);
 
+  // torso (shirt)
   const torso = new Graphics();
-  torso.rect(0, 40, 50, 40).fill(config.colors.playerTorso);
+  torso.rect(0, 40, 50, 40).fill(config.colors.playerShirt);
   player.addChild(torso);
 
   const foot = new Container();
   foot.y = 80;
   player.addChild(foot);
 
+  // upper leg (pants)
   const foot_upper = new Graphics();
-  foot_upper.rect(0, 0, 50, 20).fill(config.colors.playerSkin);
+  foot_upper.rect(0, 0, 50, 20).fill(config.colors.playerPants);
 
   // hip joint at the very left edge
   foot_upper.pivot.set(0, 0);
 
   foot.addChild(foot_upper);
 
+  // lower leg (socks)
   const foot_lower = new Graphics();
-  foot_lower.rect(0, 0, 50, 20).fill(config.colors.playerSkin);
+  foot_lower.rect(0, 0, 50, 20).fill(config.colors.playerSocks);
 
   // position this Graphics 20px below the upper leg
   foot_lower.y = 20;

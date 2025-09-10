@@ -12,7 +12,10 @@ export const config = {
     ground: 0x00ff00,
     player: 0xff0000,
     playerSkin: 0xffdbac,
-    playerTorso: 0xff8c00,
+    // new character colours
+    playerShirt: 0xffff00, // yellow
+    playerPants: 0x00bf00, // medium green
+    playerSocks: 0xffff00, // yellow
     ball: 0xffffff,
     ballBorder: 0x0000ff,
     kickIndicator: 0xffffff,
