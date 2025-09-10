@@ -32,6 +32,10 @@ window.addEventListener('DOMContentLoaded', () => {
 
       document.body.appendChild(app.canvas);
 
+      // Prevent default browser actions like long-press menu/vibration
+      app.canvas.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+      window.addEventListener('contextmenu', (e) => e.preventDefault());
+
       const layers = { staticLayer, world, uiLayer };
 
       // Global Listeners
@@ -60,7 +64,6 @@ window.addEventListener('DOMContentLoaded', () => {
         inputState.pointer.isUpThisFrame = true;
       });
       app.stage.on('pointermove', (e) => {
-        e.preventDefault(); // stop the default long-press
         if (e.originalEvent) {
           const target = e.originalEvent.target || e.originalEvent.srcElement;
           if (target && (target.id === 'left-btn' || target.id === 'right-btn')) {
@@ -74,41 +77,22 @@ window.addEventListener('DOMContentLoaded', () => {
       const leftBtn = document.getElementById('left-btn');
       const rightBtn = document.getElementById('right-btn');
 
-      [leftBtn, rightBtn].forEach((btn) => {
-        btn.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
-        btn.addEventListener('touchend', (e) => e.preventDefault(), { passive: false });
-        btn.addEventListener('touchcancel', (e) => e.preventDefault(), { passive: false });
-        btn.addEventListener(
-          'click',
-          (e) => {
-            e.preventDefault();
-            e.stopImmediatePropagation();
-          },
-          { capture: true }
-        );
-        btn.style.touchAction = 'none';
-      });
-
       leftBtn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
         inputState.keys['a'] = true;
         leftBtn.classList.add('pressed');
         leftBtn.setPointerCapture(e.pointerId);
       });
       leftBtn.addEventListener('pointerup', (e) => {
-        e.preventDefault();
         inputState.keys['a'] = false;
         leftBtn.classList.remove('pressed');
         leftBtn.releasePointerCapture(e.pointerId);
       });
       rightBtn.addEventListener('pointerdown', (e) => {
-        e.preventDefault();
         inputState.keys['d'] = true;
         rightBtn.classList.add('pressed');
         rightBtn.setPointerCapture(e.pointerId);
       });
       rightBtn.addEventListener('pointerup', (e) => {
-        e.preventDefault();
         inputState.keys['d'] = false;
         rightBtn.classList.remove('pressed');
         rightBtn.releasePointerCapture(e.pointerId);
