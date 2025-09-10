@@ -70,7 +70,7 @@ export const script = [
     trigger: { type: 'time', time: 1 },
     action: {
       type: 'showText',
-      text: 'jonka suuntaan haluaisit pallon lähtevän.',
+      text: 'jonka suuntaan haluat pallon lähtevän.',
       duration: 3000,
     },
   },

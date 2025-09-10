@@ -50,6 +50,8 @@ window.addEventListener('DOMContentLoaded', () => {
             return;
           }
         }
+        inputState.pointer.x = e.global.x;
+        inputState.pointer.y = e.global.y;
         inputState.pointer.isDown = true;
         inputState.pointer.isDownThisFrame = true;
       });
