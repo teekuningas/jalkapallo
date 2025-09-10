@@ -42,7 +42,7 @@ export function init(app, layers) {
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
   // Goal on the left, facing right, with the same clearance as level 1
-  const goal = createGoal(world, worldBounds.minX + config.wallWidth + 100, 0, 150, 200, 'right');
+  const goal = createGoal(world, worldBounds.minX + config.wallWidth + 100, 0, 150, 180, 'right');
 
   // Center the action
   player.x = 45;

@@ -96,7 +96,7 @@ export function init(app, layers) {
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
-  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 250, 0, 150, 200, 'left');
+  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 250, 0, 150, 180, 'left');
 
   player.x = -45;
   ball.x = 45;
