@@ -23,66 +23,16 @@ import {
 
 export const script = [
   {
-    id: 'level2-title',
-    trigger: { type: 'time', time: 1 },
-    action: { type: 'showText', text: 'Taso 2', duration: 3000 },
-  },
-  {
-    id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'Kuka te muuten olette?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'jake',
-      text: 'En ole varma.. tämä on kuin uni.',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'sun-dialogue-2',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'Tiedättekö tehtävänne?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'jake-dialogue-2',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'jake',
-      text: '.. tehdä niin paljon maaleja kuin mahdollista?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'sun-dialogue-3',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'Teidän tehtävänne on täyttää toteen ennustus!',
-      duration: 3000,
-    },
+    id: 'level3-title',
+    trigger: { type: 'time', time: 1000 },
+    action: { type: 'showText', text: 'Taso 3', duration: 3000 },
   },
 ];
 
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -1500, maxX: 500 };
+  const worldBounds = { minX: -500, maxX: 2000 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
@@ -93,8 +43,7 @@ export function init(app, layers) {
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
-  // Goal on the left, facing right, with the same clearance as level 1
-  const goal = createGoal(world, worldBounds.minX + config.wallWidth + 175, 0, 150, 180, 'right');
+  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
 
   // Center the action
   player.x = 45;
@@ -145,7 +94,7 @@ export function update(state, delta, inputState, app, layers) {
   // Win condition check
   const { ball, goal } = finalState;
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level3' };
+    finalState = { ...finalState, nextLevel: 'level1' };
   }
 
   updateSpeakerEffects({ ...finalState, uiMessage });

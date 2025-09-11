@@ -180,20 +180,20 @@ export function createWalls(world, worldBounds) {
     for (let y = 0; y < wallHeight; y += brickHeight + mortarHeight) {
       // Yellow brick
       wall.beginFill(0xffd700); // "bricky yellow"
-      wall.drawRect(0, -y - brickHeight, wallWidth, brickHeight);
+      wall.drawRect(-wallWidth / 2, -y - brickHeight, wallWidth, brickHeight);
       wall.endFill();
 
       // Gray mortar
       wall.beginFill(0x888888); // gray
-      wall.drawRect(0, -y - brickHeight - mortarHeight, wallWidth, mortarHeight);
+      wall.drawRect(-wallWidth / 2, -y - brickHeight - mortarHeight, wallWidth, mortarHeight);
       wall.endFill();
     }
     world.addChild(wall);
     return wall;
   };
 
-  const leftWall = createWall(worldBounds.minX);
-  const rightWall = createWall(worldBounds.maxX - wallWidth);
+  const leftWall = createWall(worldBounds.minX + wallWidth / 2);
+  const rightWall = createWall(worldBounds.maxX - wallWidth / 2);
 
   return [leftWall, rightWall];
 }
@@ -483,15 +483,20 @@ export function createGoal(world, x, y, width, height, direction) {
   posts.beginFill(goalPostColor);
 
   if (direction === 'left') {
-    const topPost = { x: 0, y: -height, width: width, height: postThickness };
-    const backPost = { x: width - postThickness, y: -height, width: postThickness, height: height };
+    const topPost = { x: -width / 2, y: -height, width: width, height: postThickness };
+    const backPost = {
+      x: width / 2 - postThickness,
+      y: -height,
+      width: postThickness,
+      height: height,
+    };
     colliders.push(topPost, backPost);
 
     posts.drawRect(topPost.x, topPost.y, topPost.width, topPost.height);
     posts.drawRect(backPost.x, backPost.y, backPost.width, backPost.height);
   } else if (direction === 'right') {
-    const topPost = { x: 0, y: -height, width: width, height: postThickness };
-    const backPost = { x: 0, y: -height, width: postThickness, height: height };
+    const topPost = { x: -width / 2, y: -height, width: width, height: postThickness };
+    const backPost = { x: -width / 2, y: -height, width: postThickness, height: height };
     colliders.push(topPost, backPost);
 
     posts.drawRect(topPost.x, topPost.y, topPost.width, topPost.height);
@@ -506,14 +511,14 @@ export function createGoal(world, x, y, width, height, direction) {
 
   // Draw net pattern
   for (let i = 1; i < 10; i++) {
-    const X = (i / 10) * width;
+    const X = -width / 2 + (i / 10) * width;
     net.moveTo(X, 0);
     net.lineTo(X, -height);
   }
   for (let i = 1; i < 10; i++) {
     const Y = (-i / 10) * height;
-    net.moveTo(0, Y);
-    net.lineTo(width, Y);
+    net.moveTo(-width / 2, Y);
+    net.lineTo(width / 2, Y);
   }
   net.endFill();
   goal.addChild(net);
@@ -544,17 +549,18 @@ export function handleResize(app, layers, state) {
 export function checkGoal(ball, goal) {
   if (!ball || !goal) return false;
   const { x, y, width, height, direction } = goal.goalShape;
+  const halfWidth = width / 2;
   if (direction === 'left') {
     return (
-      ball.x - config.ballRadius > x &&
-      ball.x + config.ballRadius < x + width &&
+      ball.x - config.ballRadius > x - halfWidth &&
+      ball.x + config.ballRadius < x + halfWidth &&
       ball.y - config.ballRadius > y - height
     );
   } else {
     // right‐facing goal
     return (
-      ball.x + config.ballRadius < x + width &&
-      ball.x - config.ballRadius > x &&
+      ball.x + config.ballRadius < x + halfWidth &&
+      ball.x - config.ballRadius > x - halfWidth &&
       ball.y - config.ballRadius > y - height
     );
   }

@@ -88,7 +88,7 @@ export const script = [
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -1000, maxX: 1000 };
+  const worldBounds = { minX: -500, maxX: 1500 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
@@ -99,7 +99,7 @@ export function init(app, layers) {
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
-  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 250, 0, 150, 180, 'left');
+  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
 
   player.x = -45;
   ball.x = 45;
