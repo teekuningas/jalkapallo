@@ -1,4 +1,4 @@
-import { config } from '../config.js';
+import { config, characters } from '../config.js';
 import {
   createPlayer,
   createBall,
@@ -17,6 +17,8 @@ import {
   initEventsState,
   updateEvents,
   getUIMessageFromEventState,
+  updateSpeakerEffects,
+  updateSun,
 } from './level-utils.js';
 
 export const script = [
@@ -24,6 +26,56 @@ export const script = [
     id: 'level2-title',
     trigger: { type: 'time', time: 1000 },
     action: { type: 'showText', text: 'Taso 2', duration: 3000 },
+  },
+  {
+    id: 'sun-dialogue-1',
+    trigger: { type: 'time', time: 1000 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: 'Kuka te muuten olette?',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'jake-dialogue-1',
+    trigger: { type: 'time', time: 1000 },
+    action: {
+      type: 'showText',
+      characterName: 'jake',
+      text: 'En ole varma.. tämä on kuin uni.',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-dialogue-2',
+    trigger: { type: 'time', time: 1000 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: 'Tiedättekö tehtävänne?',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'jake-dialogue-2',
+    trigger: { type: 'time', time: 1000 },
+    action: {
+      type: 'showText',
+      characterName: 'jake',
+      text: '.. tehdä niin paljon maaleja kuin mahdollista?',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-dialogue-3',
+    trigger: { type: 'time', time: 1000 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: 'Teidän tehtävänne on täyttää toteen ennustus!',
+      duration: 3000,
+    },
   },
 ];
 
@@ -34,9 +86,9 @@ export function init(app, layers) {
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
-  const sun = createSun(app, staticLayer);
+  const sun = createSun(app, staticLayer, characters.sun);
   const ground = createGround(app, staticLayer);
-  const player = createPlayer(world);
+  const player = createPlayer(world, characters.jake);
   const ball = createBall(world);
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
@@ -70,6 +122,8 @@ export function init(app, layers) {
     uiMessage: null,
   };
 
+  state.characters = [player, sun];
+
   // The resize handler closes over the state
   const onResize = () => {
     handleResize(app, layers, state);
@@ -93,6 +147,9 @@ export function update(state, delta, inputState, app, layers) {
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
     finalState = { ...finalState, nextLevel: 'level1' };
   }
+
+  updateSpeakerEffects({ ...finalState, uiMessage });
+  updateSun(finalState);
 
   return { ...finalState, eventState: newEventState, uiMessage };
 }

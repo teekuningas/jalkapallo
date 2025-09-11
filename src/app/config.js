@@ -30,3 +30,21 @@ export const config = {
   groundHeight: 50,
   wallWidth: 100,
 };
+
+export const characters = {
+  jake: {
+    name: 'Jake',
+    // unified light‐green for both bubble border and character glow
+    color: '#90EE90',
+    speechBubbleDirection: 'down',
+    glowColor: 0x90ee90,
+  },
+
+  sun: {
+    name: 'Sun',
+    // unified yellow–orange for both bubble border and character glow
+    color: '#FFFF00',
+    speechBubbleDirection: 'right',
+    glowColor: 0xffff00,
+  },
+};

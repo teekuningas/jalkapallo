@@ -30,7 +30,7 @@ window.addEventListener('DOMContentLoaded', () => {
       uiLayer.zIndex = 2;
       app.stage.addChild(uiLayer);
 
-      document.body.appendChild(app.canvas);
+      document.getElementById('game-container').appendChild(app.canvas);
 
       // Prevent default browser actions like long-press menu/vibration
       window.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });

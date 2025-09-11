@@ -1,4 +1,4 @@
-import { config } from '../config.js';
+import { config, characters } from '../config.js';
 import {
   createPlayer,
   createBall,
@@ -17,6 +17,8 @@ import {
   initEventsState,
   updateEvents,
   getUIMessageFromEventState,
+  updateSpeakerEffects,
+  updateSun,
 } from './level-utils.js';
 
 export const script = [
@@ -27,6 +29,7 @@ export const script = [
       type: 'showText',
       text: 'Tervetuloa jalkapallon ihmeelliseen maailmaan!',
       duration: 3000,
+      characterName: 'sun',
     },
   },
   {
@@ -36,6 +39,7 @@ export const script = [
       type: 'showText',
       text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä',
       duration: 3000,
+      characterName: 'sun',
     },
   },
   {
@@ -45,6 +49,7 @@ export const script = [
       type: 'showText',
       text: 'tai koskettamalla vasemman laidan painikkeita.',
       duration: 3000,
+      characterName: 'sun',
     },
   },
   {
@@ -54,6 +59,7 @@ export const script = [
       type: 'showText',
       text: 'Ollessasi lähellä palloa, voit potkaista sitä',
       duration: 3000,
+      characterName: 'sun',
     },
   },
   {
@@ -63,6 +69,7 @@ export const script = [
       type: 'showText',
       text: 'klikkaamalla tai koskettamalla näyttöä maailmassa kohtaan,',
       duration: 3000,
+      characterName: 'sun',
     },
   },
   {
@@ -72,12 +79,18 @@ export const script = [
       type: 'showText',
       text: 'jonka suuntaan haluat pallon lähtevän.',
       duration: 3000,
+      characterName: 'sun',
     },
   },
   {
     id: 'firstKick',
     trigger: { type: 'event', name: 'ballKicked' },
-    action: { type: 'showText', text: 'Erinomaista, juuri noin!', duration: 3000 },
+    action: {
+      type: 'showText',
+      text: 'Erinomaista, juuri noin!',
+      duration: 3000,
+      characterName: 'sun',
+    },
     once: true,
   },
 ];
@@ -89,9 +102,9 @@ export function init(app, layers) {
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
-  const sun = createSun(app, staticLayer);
+  const sun = createSun(app, staticLayer, characters.sun);
   const ground = createGround(app, staticLayer);
-  const player = createPlayer(world);
+  const player = createPlayer(world, characters.jake);
   const ball = createBall(world);
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
@@ -123,6 +136,8 @@ export function init(app, layers) {
     uiMessage: null,
   };
 
+  state.characters = [player, sun];
+
   // The resize handler closes over the state
   const onResize = () => {
     handleResize(app, layers, state);
@@ -146,6 +161,9 @@ export function update(state, delta, inputState, app, layers) {
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
     finalState = { ...finalState, nextLevel: 'level2' };
   }
+
+  updateSpeakerEffects({ ...finalState, uiMessage });
+  updateSun(finalState);
 
   return { ...finalState, eventState: newEventState, uiMessage };
 }

@@ -12,12 +12,38 @@ export function createBackground(app, staticLayer) {
   return background;
 }
 
-export function createSun(app, staticLayer) {
+export function createSun(app, staticLayer, characterConfig) {
   const sun = new Graphics();
   sun.zIndex = 0;
-  sun.circle(0, 0, 70).fill({ color: config.colors.sun, alpha: 0.2 });
   sun.circle(0, 0, 50).fill(config.colors.sun);
   staticLayer.addChild(sun);
+
+  const halo = new Graphics();
+  const beamCount = 10;
+  const innerRadius = 70;
+  const beamLength = 20;
+  halo.stroke({ color: config.colors.sun, width: 5, alpha: 0.8 });
+  for (let i = 0; i < beamCount; i++) {
+    const θ = (i / beamCount) * Math.PI * 2;
+    const x1 = Math.cos(θ) * innerRadius;
+    const y1 = Math.sin(θ) * innerRadius;
+    const x2 = Math.cos(θ) * (innerRadius + beamLength);
+    const y2 = Math.sin(θ) * (innerRadius + beamLength);
+    halo.moveTo(x1, y1).lineTo(x2, y2);
+  }
+  halo.stroke();
+  sun.addChild(halo);
+  sun.halo = halo;
+
+  // Add a speech-related glowing circle
+  const border = new Graphics();
+  border.circle(0, 0, 60).stroke({ color: characterConfig.glowColor, width: 5 });
+  border.visible = false;
+  sun.addChild(border);
+
+  sun.border = border;
+  sun.characterName = characterConfig.name.toLowerCase();
+
   return sun;
 }
 
@@ -27,7 +53,7 @@ export function createGround(app, staticLayer) {
   return ground;
 }
 
-export function createPlayer(world) {
+export function createPlayer(world, characterConfig) {
   const player = new Container();
   player.x = 0;
   player.y = 0; // groundLevelY is 0
@@ -77,6 +103,19 @@ export function createPlayer(world) {
 
   player.foot_upper = foot_upper;
   player.foot_lower = foot_lower;
+
+  const border = new Graphics();
+  // The player's graphics are drawn from (0,0) to (width, height).
+  // The border needs to surround this area, relative to the player's (0,0) origin.
+  const padding = 10;
+  border
+    .roundRect(-padding, -padding, player.width + padding * 2, player.height + padding * 2, 15)
+    .stroke({ color: characterConfig.glowColor, width: 5 });
+  border.visible = false;
+  player.addChild(border);
+
+  player.border = border;
+  player.characterName = characterConfig.name.toLowerCase();
 
   return player;
 }
@@ -529,8 +568,8 @@ export function checkGoal(ball, goal) {
 export function initEventsState() {
   return {
     time: 0,
-    queue: [], // { text, duration, startTime }[]
-    activeMessage: null, // { text, duration, startTime }
+    queue: [], // { text, duration, startTime, characterName? }[]
+    activeMessage: null, // { text, duration, startTime, characterName? }
     completedEvents: new Set(),
     lastMessageEndTime: 0,
     // A 1 second delay between messages
@@ -539,10 +578,10 @@ export function initEventsState() {
 }
 
 export function getUIMessageFromEventState(eventState) {
-  if (!eventState || !eventState.activeMessage) {
+  if (!eventState) {
     return null;
   }
-  return eventState.activeMessage.text;
+  return eventState.activeMessage;
 }
 
 export function updateEvents(eventState, script, gameState, gameEvents, delta) {
@@ -568,10 +607,7 @@ export function updateEvents(eventState, script, gameState, gameEvents, delta) {
 
     if (isTriggered) {
       if (action.type === 'showText') {
-        newQueue.push({
-          text: action.text,
-          duration: action.duration,
-        });
+        newQueue.push(action);
       }
       if (once) {
         newCompletedEvents.add(id);
@@ -601,4 +637,30 @@ export function updateEvents(eventState, script, gameState, gameEvents, delta) {
     activeMessage,
     lastMessageEndTime,
   };
+}
+
+export function updateSpeakerEffects(state) {
+  const { characters, uiMessage } = state;
+  if (!characters) return;
+
+  const speakerName = uiMessage ? uiMessage.characterName : null;
+
+  characters.forEach((char) => {
+    if (char.border) {
+      if (char.characterName === speakerName) {
+        char.border.visible = true;
+        // Use a simple time-based glow effect
+        char.border.alpha = 0.6 + Math.sin(performance.now() / 150) * 0.4;
+      } else {
+        char.border.visible = false;
+      }
+    }
+  });
+}
+
+// called once per tick in each level—rotates only the sun’s halo
+export function updateSun(state) {
+  if (state.sun && state.sun.halo) {
+    state.sun.halo.rotation += 0.003;
+  }
 }
