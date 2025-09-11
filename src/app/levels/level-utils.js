@@ -436,6 +436,36 @@ export function updatePhysics(state, delta) {
     }
   }
 
+  // Obstacle collision
+  if (state.obstacles) {
+    const ballCircle = { x: ball.x, y: ball.y, radius: config.ballRadius };
+
+    for (const obstacle of state.obstacles) {
+      const { colliders, x, y } = obstacle;
+      const rect = colliders[0]; // Assuming one collider per obstacle
+
+      const absoluteRect = {
+        x: rect.x + x,
+        y: rect.y + y,
+        width: rect.width,
+        height: rect.height,
+      };
+      const collision = collideCircleWithRectangle(ballCircle, absoluteRect);
+
+      if (collision.collided) {
+        ball.x += collision.normalX * collision.overlap;
+        ball.y += collision.normalY * collision.overlap;
+
+        const dotProduct = ballVelocity.x * collision.normalX + ballVelocity.y * collision.normalY;
+        ballVelocity.x -= 2 * dotProduct * collision.normalX;
+        ballVelocity.y -= 2 * dotProduct * collision.normalY;
+
+        ballVelocity.x *= -config.ballBounce;
+        ballVelocity.y *= -config.ballBounce;
+      }
+    }
+  }
+
   return { ...state, ball, ballVelocity };
 }
 
@@ -527,6 +557,27 @@ export function createGoal(world, x, y, width, height, direction) {
   goal.goalShape = { x, y, width, height, direction };
 
   return goal;
+}
+
+export function createObstacle(world, leftX, rightX, bottomY, topY) {
+  const width = rightX - leftX;
+  const height = topY - bottomY;
+
+  const obstacle = new Container();
+  obstacle.x = leftX;
+  obstacle.y = -bottomY;
+  world.addChild(obstacle);
+
+  const graphics = new Graphics();
+  graphics
+    .rect(0, -height, width, height)
+    .fill({ color: 0xffffff, alpha: 0.5 })
+    .stroke({ color: 0x000000, width: 5, alignment: 0 });
+  obstacle.addChild(graphics);
+
+  obstacle.colliders = [{ x: 0, y: -height, width, height }];
+
+  return obstacle;
 }
 
 export function handleResize(app, layers, state) {
