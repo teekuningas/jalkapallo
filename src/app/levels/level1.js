@@ -28,7 +28,7 @@ export const script = [
     action: {
       type: 'showText',
       text: 'Tervetuloa jalkapallon ihmeelliseen maailmaan!',
-      duration: 3000,
+      duration: 4000,
       characterName: 'sun',
     },
   },
@@ -37,8 +37,8 @@ export const script = [
     trigger: { type: 'time', time: 1 },
     action: {
       type: 'showText',
-      text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä',
-      duration: 3000,
+      text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä ..',
+      duration: 4000,
       characterName: 'sun',
     },
   },
@@ -48,7 +48,7 @@ export const script = [
     action: {
       type: 'showText',
       text: 'tai koskettamalla vasemman laidan painikkeita.',
-      duration: 3000,
+      duration: 4000,
       characterName: 'sun',
     },
   },
@@ -57,8 +57,8 @@ export const script = [
     trigger: { type: 'time', time: 1 },
     action: {
       type: 'showText',
-      text: 'Ollessasi lähellä palloa, voit potkaista sitä',
-      duration: 3000,
+      text: 'Ollessasi pallon lähellä, voit potkaista sitä klikkaamalla tai koskettamalla näyttöä ..',
+      duration: 4000,
       characterName: 'sun',
     },
   },
@@ -67,18 +67,8 @@ export const script = [
     trigger: { type: 'time', time: 1 },
     action: {
       type: 'showText',
-      text: 'klikkaamalla tai koskettamalla näyttöä maailmassa kohtaan,',
-      duration: 3000,
-      characterName: 'sun',
-    },
-  },
-  {
-    id: 'kickHelp3',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      text: 'jonka suuntaan haluat pallon lähtevän.',
-      duration: 3000,
+      text: 'siihen kohtaan, jonka suuntaan haluat pallon lähtevän.',
+      duration: 4000,
       characterName: 'sun',
     },
   },

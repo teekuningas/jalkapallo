@@ -71,7 +71,7 @@ canvas {
 
 #story-message {
   position: absolute;
-  top: 30%;
+  top: 20%;
   left: 50%;
   transform: translateX(-50%);
   color: white;
@@ -81,7 +81,6 @@ canvas {
   z-index: 100;
   pointer-events: none;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
-  transition: all 0.1s ease-in-out;
 }
 
 .speech-bubble {

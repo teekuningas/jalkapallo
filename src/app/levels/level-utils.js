@@ -125,9 +125,6 @@ export function createBall(world) {
   ball.circle(0, 0, config.ballRadius).fill(config.colors.ball);
   ball.x = 0;
   ball.y = 0 - config.ballRadius; // groundLevelY is 0
-  ball.interactive = true;
-  ball.cursor = 'pointer';
-  ball.hitArea = new Circle(0, 0, config.ballRadius + 40);
   world.addChild(ball);
 
   const ballBorder = new Graphics();
