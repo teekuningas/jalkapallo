@@ -52,8 +52,8 @@ export function startGame(app, inputState, layers, clock) {
   let currentLevelName = null;
   let levelState = null;
 
-  function changeLevel(levelName) {
-    if (currentLevelName === levelName) return;
+  function changeLevel(levelName, forceReload = false) {
+    if (currentLevelName === levelName && !forceReload) return;
 
     if (levelState && levelState.onResize) {
       window.removeEventListener('resize', levelState.onResize);
@@ -100,4 +100,14 @@ export function startGame(app, inputState, layers, clock) {
   });
 
   changeLevel('level1');
+
+  return {
+    pause: () => clock.pause(),
+    resume: () => clock.play(),
+    restart: () => {
+      if (currentLevelName) {
+        changeLevel(currentLevelName, true);
+      }
+    },
+  };
 }

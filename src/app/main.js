@@ -34,8 +34,16 @@ window.addEventListener('DOMContentLoaded', () => {
 
       document.getElementById('game-container').appendChild(app.canvas);
 
-      // Prevent default browser actions like long-press menu/vibration
-      window.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
+      // Prevent default browser actions on the canvas to allow UI events.
+      window.addEventListener(
+        'touchstart',
+        (e) => {
+          if (e.target === app.canvas) {
+            e.preventDefault();
+          }
+        },
+        { passive: false }
+      );
       window.addEventListener('contextmenu', (e) => e.preventDefault());
 
       const layers = { staticLayer, world, uiLayer };
@@ -101,7 +109,52 @@ window.addEventListener('DOMContentLoaded', () => {
       });
 
       // Start Game
-      startGame(app, inputState, layers, clock);
+      const gameControls = startGame(app, inputState, layers, clock);
+
+      // Menu Controls
+      const menuOverlay = document.getElementById('menu-overlay');
+      const menuBtn = document.getElementById('menu-btn');
+      const restartBtn = document.getElementById('restart-btn');
+
+      function openMenu() {
+        gameControls.pause();
+        menuOverlay.classList.remove('hidden');
+        menuBtn.classList.add('pressed');
+      }
+
+      function closeMenu() {
+        gameControls.resume();
+        menuOverlay.classList.add('hidden');
+        menuBtn.classList.remove('pressed');
+      }
+
+      menuBtn.addEventListener('pointerdown', (e) => {
+        e.stopPropagation(); // Prevent the event from bubbling up to the PIXI stage
+        openMenu();
+      });
+
+      restartBtn.addEventListener('click', () => {
+        closeMenu();
+        gameControls.restart();
+      });
+
+      // Also close menu if clicking on the background
+      menuOverlay.addEventListener('pointerdown', (e) => {
+        if (e.target === menuOverlay) {
+          closeMenu();
+        }
+      });
+
+      // Add Escape key listener
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (!menuOverlay.classList.contains('hidden')) {
+            closeMenu();
+          } else {
+            openMenu();
+          }
+        }
+      });
 
       // Reset single-frame input flags at the end of each frame
       app.ticker.add((time) => {
