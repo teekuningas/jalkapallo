@@ -7,8 +7,8 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
-    <script type="module" crossorigin src="/jalkapallo/assets/index-w17SxGi5.js"></script>
-    <link rel="stylesheet" crossorigin href="/jalkapallo/assets/index-yuO2evET.css">
+    <script type="module" crossorigin src="/jalkapallo/assets/index-rT42RJ4s.js"></script>
+    <link rel="stylesheet" crossorigin href="/jalkapallo/assets/index--yIdMdT0.css">
   </head>
   <body>
     <div id="game-container">
@@ -18,8 +18,30 @@
         kääntymisen sallivan asetuksen.
       </div>
       <div id="mobile-controls">
-        <div id="right-btn" class="move-btn">▶</div>
-        <div id="left-btn" class="move-btn">◀</div>
+        <div id="menu-btn" class="move-btn">
+          <svg width="30" height="30" viewBox="0 0 30 30" fill="white">
+            <rect x="5" y="7" width="20" height="3"></rect>
+            <rect x="5" y="14" width="20" height="3"></rect>
+            <rect x="5" y="21" width="20" height="3"></rect>
+          </svg>
+        </div>
+        <div id="movement-buttons">
+          <div id="right-btn" class="move-btn">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="white">
+              <polygon points="8,5 22,15 8,25"></polygon>
+            </svg>
+          </div>
+          <div id="left-btn" class="move-btn">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="white">
+              <polygon points="22,5 8,15 22,25"></polygon>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div id="menu-overlay" class="hidden">
+        <div id="menu-content">
+          <button id="restart-btn">Aloita alusta</button>
+        </div>
       </div>
     </div>
   </body>
