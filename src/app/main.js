@@ -34,16 +34,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
       document.getElementById('game-container').appendChild(app.canvas);
 
-      // Prevent default browser actions on the canvas to allow UI events.
-      window.addEventListener(
-        'touchstart',
-        (e) => {
-          if (e.target === app.canvas) {
-            e.preventDefault();
-          }
-        },
-        { passive: false }
-      );
+      // Prevent default browser actions like long-press menu/vibration
+      window.addEventListener('touchstart', (e) => e.preventDefault(), { passive: false });
       window.addEventListener('contextmenu', (e) => e.preventDefault());
 
       const layers = { staticLayer, world, uiLayer };
@@ -133,7 +125,7 @@ window.addEventListener('DOMContentLoaded', () => {
         openMenu();
       });
 
-      restartBtn.addEventListener('click', () => {
+      restartBtn.addEventListener('pointerdown', () => {
         closeMenu();
         gameControls.restart();
       });

@@ -180,6 +180,9 @@ canvas {
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
   text-align: center;
   width: clamp(250px, 50vw, 400px);
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
+  -moz-user-select: none; /* Firefox */
 }
 
 #restart-btn {
