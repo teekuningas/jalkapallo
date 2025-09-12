@@ -1,8 +1,8 @@
 export const config = {
-  playerSpeed: 3,
+  playerSpeed: 300,
   kickableDistance: 100,
-  gravity: 0.3,
-  friction: 0.999, // closer to 1 → much less “air” drag
+  gravity: 1080,
+  friction: 0.8, // closer to 1 → much less “air” drag
   ballRadius: 25,
   ballBounce: -0.6,
 

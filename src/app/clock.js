@@ -11,7 +11,7 @@ export function createClock() {
     },
     update: (delta) => {
       if (!isPaused) {
-        time += delta * (1000 / 60); // Convert delta to milliseconds (approx)
+        time += delta;
       }
     },
     getTime: () => time,

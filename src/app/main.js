@@ -150,7 +150,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
       // Reset single-frame input flags at the end of each frame
       app.ticker.add((time) => {
-        clock.update(time.deltaTime);
+        clock.update(time.deltaMS);
         inputState.pointer.isDownThisFrame = false;
         inputState.pointer.isUpThisFrame = false;
       });

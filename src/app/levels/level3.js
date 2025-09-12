@@ -87,7 +87,12 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
-  const { newState: stateAfterInput, gameEvents } = handleInputs(state, inputState, layers.world);
+  const { newState: stateAfterInput, gameEvents } = handleInputs(
+    state,
+    inputState,
+    layers.world,
+    delta
+  );
 
   const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);

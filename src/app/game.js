@@ -79,7 +79,7 @@ export function startGame(app, inputState, layers, clock) {
   app.ticker.add((time) => {
     if (!levelState || clock.isPaused()) return;
 
-    const delta = time.deltaTime;
+    const delta = time.deltaMS;
 
     const newState = levels[currentLevelName].update(
       levelState,

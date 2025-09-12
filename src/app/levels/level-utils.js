@@ -215,13 +215,15 @@ export function updateProximityIndicator(ball, isKickable) {
   }
 }
 
-export function handleInputs(state, inputState, world) {
+export function handleInputs(state, inputState, world, delta) {
   let { player, ball, kickIndicator, kickStart, ballVelocity } = state;
   const gameEvents = [];
 
+  const dt = delta / 1000;
+
   // Player Movement
-  if (inputState.keys['a'] || inputState.keys['ArrowLeft']) player.x -= config.playerSpeed;
-  if (inputState.keys['d'] || inputState.keys['ArrowRight']) player.x += config.playerSpeed;
+  if (inputState.keys['a'] || inputState.keys['ArrowLeft']) player.x -= config.playerSpeed * dt;
+  if (inputState.keys['d'] || inputState.keys['ArrowRight']) player.x += config.playerSpeed * dt;
 
   // Kicking Logic
   const isKickable = isPlayerKickable(player, ball, world);
@@ -246,7 +248,7 @@ export function handleInputs(state, inputState, world) {
     kickIndicator.clear();
     if (isPlayerKickable(player, ball, world)) {
       const ballScreenPos = world.toGlobal(ball.position);
-      const kickPower = 0.1 / world.scale.x;
+      const kickPower = (0.1 * 60) / world.scale.x;
       const dx = inputState.pointer.x - ballScreenPos.x;
       const dy = inputState.pointer.y - ballScreenPos.y;
       ballVelocity = { x: dx * kickPower, y: dy * kickPower };
@@ -332,12 +334,14 @@ function collideCircleWithRectangle(circle, rect) {
 export function updatePhysics(state, delta) {
   let { ball, ballVelocity } = state;
 
-  // Ball Physics
-  ball.x += ballVelocity.x * delta;
-  ball.y += ballVelocity.y * delta;
+  const dt = delta / 1000;
 
-  ballVelocity.x *= config.friction;
-  ballVelocity.y += config.gravity * delta;
+  // Ball Physics
+  ball.x += ballVelocity.x * dt;
+  ball.y += ballVelocity.y * dt;
+
+  ballVelocity.x *= Math.pow(config.friction, dt);
+  ballVelocity.y += config.gravity * dt;
 
   // Collision Detection with ground
   if (ball.y + config.ballRadius > 0) {
