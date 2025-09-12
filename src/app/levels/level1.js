@@ -137,10 +137,10 @@ export function init(app, layers) {
   return state;
 }
 
-export function update(state, delta, inputState, app, layers) {
+export function update(state, delta, inputState, app, layers, clock) {
   const { newState: stateAfterInput, gameEvents } = handleInputs(state, inputState, layers.world);
 
-  const newEventState = updateEvents(state.eventState, script, state, gameEvents, delta);
+  const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);

@@ -638,8 +638,8 @@ export function getUIMessageFromEventState(eventState) {
   return eventState.activeMessage;
 }
 
-export function updateEvents(eventState, script, gameState, gameEvents, delta) {
-  const newTime = eventState.time + delta * (1000 / 60); // Convert delta to milliseconds (approx)
+export function updateEvents(eventState, script, gameState, gameEvents, clock) {
+  const newTime = clock.getTime();
   let newQueue = [...eventState.queue];
   let newCompletedEvents = new Set(eventState.completedEvents);
   let activeMessage = eventState.activeMessage;

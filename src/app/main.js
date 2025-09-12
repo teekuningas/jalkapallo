@@ -1,8 +1,10 @@
 import { Application, Container } from 'pixi.js';
 import { startGame } from './game.js';
+import { createClock } from './clock.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const app = new Application();
+  const clock = createClock();
 
   const inputState = {
     keys: {},
@@ -99,12 +101,24 @@ window.addEventListener('DOMContentLoaded', () => {
       });
 
       // Start Game
-      startGame(app, inputState, layers);
+      startGame(app, inputState, layers, clock);
 
       // Reset single-frame input flags at the end of each frame
-      app.ticker.add(() => {
+      app.ticker.add((time) => {
+        clock.update(time.deltaTime);
         inputState.pointer.isDownThisFrame = false;
         inputState.pointer.isUpThisFrame = false;
       });
+
+      const handleOrientation = () => {
+        if (window.innerHeight > window.innerWidth) {
+          clock.pause();
+        } else {
+          clock.play();
+        }
+      };
+
+      window.addEventListener('resize', handleOrientation);
+      handleOrientation(); // Initial check
     });
 });

@@ -43,7 +43,7 @@ function renderMessage(message, state, layers) {
   }
 }
 
-export function startGame(app, inputState, layers) {
+export function startGame(app, inputState, layers, clock) {
   const levels = {
     level1,
     level2,
@@ -77,11 +77,18 @@ export function startGame(app, inputState, layers) {
   }
 
   app.ticker.add((time) => {
-    if (!levelState) return;
+    if (!levelState || clock.isPaused()) return;
 
     const delta = time.deltaTime;
 
-    const newState = levels[currentLevelName].update(levelState, delta, inputState, app, layers);
+    const newState = levels[currentLevelName].update(
+      levelState,
+      delta,
+      inputState,
+      app,
+      layers,
+      clock
+    );
     levelState = newState;
 
     renderMessage(levelState.uiMessage, levelState, layers);
