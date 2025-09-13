@@ -24,39 +24,9 @@ import {
 
 export const script = [
   {
-    id: 'level3-title',
+    id: 'level4-title',
     trigger: { type: 'time', time: 1000 },
-    action: { type: 'showText', text: 'Taso 3', duration: 3000 },
-  },
-  {
-    id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 1000 },
-    action: {
-      type: 'showText',
-      characterName: 'jake',
-      text: 'Ennustus? Mikä ihmeen ennustus?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 1000 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'Muinainen ennustus..',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'sun-dialogue-2',
-    trigger: { type: 'time', time: 1000 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: '..toiselta ajalta.',
-      duration: 3000,
-    },
+    action: { type: 'showText', text: 'Taso 4', duration: 3000 },
   },
 ];
 
@@ -75,8 +45,9 @@ export function init(app, layers) {
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
-  const obstacle1 = createObstacle(world, 500, 600, 0, 200);
-  const obstacle2 = createObstacle(world, 900, 1000, 200, 400);
+  const obstacle1 = createObstacle(world, 400, 500, 0, 800);
+  const obstacle2 = createObstacle(world, 800, 900, 400, 1200);
+  const obstacle3 = createObstacle(world, 1200, 1300, 0, 800);
 
   // Center the action
   player.x = 45;
@@ -94,7 +65,7 @@ export function init(app, layers) {
     kickIndicator,
     walls,
     goal,
-    obstacles: [obstacle1, obstacle2],
+    obstacles: [obstacle1, obstacle2, obstacle3],
     // State properties
     worldBounds,
     kickStart: null,
@@ -133,7 +104,7 @@ export function update(state, delta, inputState, app, layers, clock) {
   // Win condition check
   const { ball, goal } = finalState;
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level4' };
+    finalState = { ...finalState, nextLevel: 'level1' };
   }
 
   updateSpeakerEffects({ ...finalState, uiMessage });
