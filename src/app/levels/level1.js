@@ -29,7 +29,6 @@ export const script = [
       type: 'showText',
       text: 'Tervetuloa jalkapallon ihmeelliseen maailmaan!',
       duration: 4000,
-      characterName: 'sun',
     },
   },
   {
@@ -39,7 +38,6 @@ export const script = [
       type: 'showText',
       text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä ..',
       duration: 4000,
-      characterName: 'sun',
     },
   },
   {
@@ -49,7 +47,6 @@ export const script = [
       type: 'showText',
       text: 'tai koskettamalla vasemman laidan painikkeita.',
       duration: 4000,
-      characterName: 'sun',
     },
   },
   {
@@ -59,7 +56,6 @@ export const script = [
       type: 'showText',
       text: 'Ollessasi pallon lähellä, voit potkaista sitä klikkaamalla tai koskettamalla näyttöä ..',
       duration: 4000,
-      characterName: 'sun',
     },
   },
   {
@@ -69,7 +65,6 @@ export const script = [
       type: 'showText',
       text: 'siihen kohtaan, jonka suuntaan haluat pallon lähtevän.',
       duration: 4000,
-      characterName: 'sun',
     },
   },
   {
@@ -77,7 +72,7 @@ export const script = [
     trigger: { type: 'event', name: 'ballKicked' },
     action: {
       type: 'showText',
-      text: 'Erinomaista, juuri noin!',
+      text: 'Tähti on syttynyt!',
       duration: 3000,
       characterName: 'sun',
     },

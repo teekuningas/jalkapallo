@@ -54,7 +54,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: '..toiselta ajalta.',
+      text: '..muinaiselta ajalta.',
       duration: 3000,
     },
   },

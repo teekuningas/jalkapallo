@@ -25,8 +25,68 @@ import {
 export const script = [
   {
     id: 'level4-title',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 1 },
     action: { type: 'showText', text: 'Taso 4', duration: 3000 },
+  },
+  {
+    id: 'jake-dialogue-1',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      characterName: 'jake',
+      text: 'Mitä siinä sitten sanotaan?',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-dialogue-1',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: 'Muinaisessa ennustuksessa sanotaan..',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-dialogue-2',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: '..että maailmaan saapuu pelaaja..',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-dialogue-3',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: '..joka onnistuu ohittamaan maalivahdin..',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-dialogue-4',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: '..joka muinaisista ajoista asti..',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-dialogue-5',
+    trigger: { type: 'time', time: 1 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: '..on maailmamme maalia vahtinut.',
+      duration: 3000,
+    },
   },
 ];
 
