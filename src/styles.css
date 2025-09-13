@@ -95,7 +95,7 @@ canvas {
   transform: translateX(-50%);
   color: white;
   font-family: Arial, sans-serif;
-  font-size: 24px;
+  font-size: 36px;
   text-align: center;
   z-index: 100;
   pointer-events: none;
@@ -104,9 +104,9 @@ canvas {
 
 .speech-bubble {
   background-color: rgba(255, 255, 255, 0.8);
-  border: 2px solid;
-  border-radius: 10px;
-  padding: 10px;
+  border: 4px solid;
+  border-radius: 20px;
+  padding: 20px;
   color: black; /* Override default white text */
   text-shadow: none; /* Remove text shadow for speech bubbles */
   max-width: 80%; /* Responsive width */
@@ -117,7 +117,7 @@ canvas {
 .speech-bubble p {
   margin: 0;
   font-family: Arial, sans-serif;
-  font-size: 18px;
+  font-size: clamp(18px, 4vmin, 36px);
   color: black;
 }
 
@@ -129,7 +129,7 @@ canvas {
 }
 
 .speech-bubble-indicator.up {
-  border-width: 0 10px 10px 10px;
+  border-width: 0 20px 20px 20px;
   border-color: transparent transparent currentColor transparent;
   bottom: 100%; /* Position above the bubble */
   left: 50%;
@@ -137,7 +137,7 @@ canvas {
 }
 
 .speech-bubble-indicator.down {
-  border-width: 10px 10px 0 10px;
+  border-width: 20px 20px 0 20px;
   border-color: currentColor transparent transparent transparent;
   top: 100%; /* Position below the bubble */
   left: 50%;
@@ -145,7 +145,7 @@ canvas {
 }
 
 .speech-bubble-indicator.right {
-  border-width: 10px 0 10px 10px;
+  border-width: 20px 0 20px 20px;
   border-color: transparent transparent transparent currentColor;
   left: 100%; /* Position to the right of the bubble */
   top: 50%;

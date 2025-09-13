@@ -137,7 +137,7 @@ export function createBall(world) {
 export function createLevelText(world, textContent) {
   const text = new Text({
     text: textContent,
-    style: { fontFamily: 'Arial', fontSize: 36, fill: 0xffffff, align: 'center' },
+    style: { fontFamily: 'Arial', fontSize: 54, fill: 0xffffff, align: 'center' },
   });
   text.x = 400;
   text.y = -200;

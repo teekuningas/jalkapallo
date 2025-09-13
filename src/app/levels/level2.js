@@ -33,7 +33,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Kuka te muuten olette?',
+      text: 'Olette siis viimein saapunut..',
       duration: 3000,
     },
   },
@@ -43,7 +43,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'En ole varma.. tämä on kuin uni.',
+      text: 'Viimein? Missä edes olen?',
       duration: 3000,
     },
   },
@@ -53,7 +53,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiedättekö tehtävänne?',
+      text: 'Katsokaa ympärillenne. Tiedättekö tehtävänne?',
       duration: 3000,
     },
   },
@@ -63,7 +63,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: '.. tehdä niin paljon maaleja kuin mahdollista?',
+      text: '..tehdä niin paljon maaleja kuin mahdollista?',
       duration: 3000,
     },
   },
