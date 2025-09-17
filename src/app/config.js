@@ -19,6 +19,13 @@ export const config = {
     ball: 0xffffff,
     ballBorder: 0x0000ff,
     kickIndicator: 0xffffff,
+    therianHead: 0xffa500, // Orange
+    therianEars: 0xffffff, // White
+    therianStomach: 0xffffff, // White
+    therianBack: 0xffa500, // Orange
+    therianTail: 0xffa500, // Orange
+    therianLegs: 0xffffff, // White
+    therianCloak: 0x4169e1, // RoyalBlue
   },
   camera: {
     smoothing: 0.08,
@@ -46,5 +53,12 @@ export const characters = {
     color: '#FFFF00',
     speechBubbleDirection: 'right',
     glowColor: 0xffff00,
+  },
+
+  therian: {
+    name: 'Therian',
+    color: '#FFA500',
+    speechBubbleDirection: 'down',
+    glowColor: 0xffa500,
   },
 };

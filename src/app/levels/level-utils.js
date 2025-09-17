@@ -120,6 +120,106 @@ export function createPlayer(world, characterConfig) {
   return player;
 }
 
+export function createTherian(world, characterConfig, initialPosition) {
+  const therian = new Container();
+  therian.x = initialPosition.x || 0;
+  therian.y = initialPosition.y || -1000; // Flying height
+  world.addChild(therian);
+
+  const cloak = new Graphics();
+  therian.addChild(cloak);
+  therian.cloak = cloak; // so we can access it in update
+
+  // Tail
+  const tail = new Graphics();
+  tail.beginFill(config.colors.therianTail);
+  tail.drawRect(-60, 10, 60, 20);
+  tail.endFill();
+  therian.addChild(tail);
+
+  // Legs
+  const backLeg = new Graphics();
+  backLeg.beginFill(config.colors.therianLegs);
+  backLeg.drawRect(10, 40, 20, 30);
+  backLeg.endFill();
+  therian.addChild(backLeg);
+
+  const frontLeg = new Graphics();
+  frontLeg.beginFill(config.colors.therianLegs);
+  frontLeg.drawRect(40, 40, 20, 30);
+  frontLeg.endFill();
+  therian.addChild(frontLeg);
+
+  // Torso
+  const torso = new Container();
+  therian.addChild(torso);
+
+  const back = new Graphics();
+  back.beginFill(config.colors.therianBack);
+  back.drawRect(0, 0, 80, 30);
+  back.endFill();
+  torso.addChild(back);
+
+  const stomach = new Graphics();
+  stomach.beginFill(config.colors.therianStomach);
+  stomach.drawRect(0, 30, 80, 10);
+  stomach.endFill();
+  torso.addChild(stomach);
+
+  // Head
+  const head = new Container();
+  head.x = 70;
+  head.y = 10;
+  therian.addChild(head);
+
+  const face = new Graphics();
+  face.beginFill(config.colors.therianHead);
+  face.drawRect(0, -10, 40, 40);
+  face.endFill();
+  head.addChild(face);
+
+  const snout = new Graphics();
+  snout.beginFill(config.colors.therianEars); // white snout
+  snout.drawPolygon([40, 10, 50, 15, 40, 20]);
+  head.addChild(snout);
+
+  const ear1 = new Graphics();
+  ear1.beginFill(config.colors.therianEars);
+  ear1.drawPolygon([10, -10, 30, -10, 20, -30]);
+  head.addChild(ear1);
+
+  const ear2 = new Graphics();
+  ear2.beginFill(config.colors.therianEars);
+  ear2.drawPolygon([0, -10, 20, -10, 10, -30]);
+  head.addChild(ear2);
+
+  const bounds = therian.getLocalBounds();
+
+  therian.pivot.x = bounds.x + bounds.width / 2;
+  therian.pivot.y = bounds.y + bounds.height / 2;
+
+  const border = new Graphics();
+  const padding = 15;
+  border
+    .roundRect(
+      bounds.x - padding,
+      bounds.y - padding,
+      bounds.width + padding * 2,
+      bounds.height + padding * 2,
+      15
+    )
+    .stroke({ color: characterConfig.glowColor, width: 5 });
+  border.visible = false;
+  therian.addChild(border);
+
+  therian.border = border;
+  therian.characterName = characterConfig.name.toLowerCase();
+  therian.direction = 1; // 1 for right, -1 for left
+  therian.speed = 200;
+
+  return therian;
+}
+
 export function createBall(world) {
   const ball = new Graphics();
   ball.circle(0, 0, config.ballRadius).fill(config.colors.ball);
@@ -721,4 +821,52 @@ export function updateSun(state) {
   if (state.sun && state.sun.halo) {
     state.sun.halo.rotation += 0.003;
   }
+}
+
+function updateTherian(therian, worldBounds, dt) {
+  therian.x += therian.speed * therian.direction * dt;
+
+  const leftBoundary = worldBounds.minX + therian.width / 2 + 100;
+  const rightBoundary = worldBounds.maxX - therian.width / 2 - 100;
+
+  if (therian.x > rightBoundary) {
+    therian.x = rightBoundary;
+    therian.direction = -1;
+    therian.scale.x = -1;
+  } else if (therian.x < leftBoundary) {
+    therian.x = leftBoundary;
+    therian.direction = 1;
+    therian.scale.x = 1;
+  }
+
+  // Cloak animation
+  const time = Date.now() / 200;
+  const cloak = therian.cloak;
+  cloak.clear();
+  cloak.beginFill(config.colors.therianCloak);
+  cloak.moveTo(10, 10); // Start from the upper back
+  cloak.lineTo(-80, 10 + Math.sin(time) * 20);
+  cloak.lineTo(10, 10 + Math.sin(time / 2) * 20 + 10);
+  cloak.closePath();
+  cloak.endFill();
+}
+
+const npcUpdaters = {
+  therian: updateTherian,
+};
+
+export function updateNPCs(state, delta) {
+  if (!state.npcs) return state;
+
+  const dt = delta / 1000;
+
+  const newNpcs = state.npcs.map((npc) => {
+    const updater = npcUpdaters[npc.type];
+    if (updater) {
+      updater(npc, state.worldBounds, dt);
+    }
+    return npc;
+  });
+
+  return { ...state, npcs: newNpcs };
 }
