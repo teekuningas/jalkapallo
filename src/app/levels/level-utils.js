@@ -150,6 +150,9 @@ export function createTherian(world, characterConfig, initialPosition) {
   frontLeg.endFill();
   therian.addChild(frontLeg);
 
+  therian.frontLeg = frontLeg;
+  therian.backLeg = backLeg;
+
   // Torso
   const torso = new Container();
   therian.addChild(torso);
@@ -194,6 +197,7 @@ export function createTherian(world, characterConfig, initialPosition) {
   head.addChild(ear2);
 
   const bounds = therian.getLocalBounds();
+  therian.width = bounds.width;
 
   therian.pivot.x = bounds.x + bounds.width / 2;
   therian.pivot.y = bounds.y + bounds.height / 2;
@@ -214,8 +218,23 @@ export function createTherian(world, characterConfig, initialPosition) {
 
   therian.border = border;
   therian.characterName = characterConfig.name.toLowerCase();
+  therian.type = 'therian';
   therian.direction = 1; // 1 for right, -1 for left
   therian.speed = 200;
+
+  therian.kickAnimation = {
+    active: false,
+    duration: 200, // ms
+    timer: 0,
+  };
+
+  const colliderRect = {
+    x: bounds.x - padding,
+    y: bounds.y - padding,
+    width: bounds.width + padding * 2,
+    height: bounds.height + padding * 2,
+  };
+  therian.colliderRect = colliderRect;
 
   return therian;
 }
@@ -570,6 +589,66 @@ export function updatePhysics(state, delta) {
     }
   }
 
+  // NPC collision
+  if (state.npcs) {
+    const ballCircle = { x: ball.x, y: ball.y, radius: config.ballRadius };
+
+    for (const npc of state.npcs) {
+      if (npc.type === 'therian' && npc.colliderRect) {
+        const rect = npc.colliderRect;
+
+        // Calculate the world-space corners of the collider rect based on npc's transform
+        const corner1X = npc.x + (rect.x - npc.pivot.x) * npc.scale.x;
+        const corner1Y = npc.y + (rect.y - npc.pivot.y) * npc.scale.y;
+        const corner2X = npc.x + (rect.x + rect.width - npc.pivot.x) * npc.scale.x;
+        const corner2Y = npc.y + (rect.y + rect.height - npc.pivot.y) * npc.scale.y;
+
+        const absoluteRect = {
+          x: Math.min(corner1X, corner2X),
+          y: Math.min(corner1Y, corner2Y),
+          width: rect.width * Math.abs(npc.scale.x),
+          height: rect.height * Math.abs(npc.scale.y),
+        };
+
+        const collision = collideCircleWithRectangle(ballCircle, absoluteRect);
+
+        if (collision.collided) {
+          // Resolve overlap
+          ball.x += collision.normalX * collision.overlap;
+          ball.y += collision.normalY * collision.overlap;
+
+          // Calculate relative velocity
+          const npcVelocity = { x: npc.speed * npc.direction, y: 0 };
+          const relativeVelocity = {
+            x: ballVelocity.x - npcVelocity.x,
+            y: ballVelocity.y - npcVelocity.y,
+          };
+
+          // Check if objects are moving towards each other
+          const velocityAlongNormal =
+            relativeVelocity.x * collision.normalX + relativeVelocity.y * collision.normalY;
+
+          // Only bounce if they are moving towards each other
+          if (velocityAlongNormal < 0) {
+            const dotProduct =
+              ballVelocity.x * collision.normalX + ballVelocity.y * collision.normalY;
+            ballVelocity.x -= 2 * dotProduct * collision.normalX;
+            ballVelocity.y -= 2 * dotProduct * collision.normalY;
+
+            ballVelocity.x *= -config.ballBounce;
+            ballVelocity.y *= -config.ballBounce;
+
+            // Trigger kick animation
+            if (!npc.kickAnimation.active) {
+              npc.kickAnimation.active = true;
+              npc.kickAnimation.timer = npc.kickAnimation.duration;
+            }
+          }
+        }
+      }
+    }
+  }
+
   return { ...state, ball, ballVelocity };
 }
 
@@ -849,6 +928,18 @@ function updateTherian(therian, worldBounds, dt) {
   cloak.lineTo(10, 10 + Math.sin(time / 2) * 20 + 10);
   cloak.closePath();
   cloak.endFill();
+
+  if (therian.kickAnimation.active) {
+    therian.kickAnimation.timer -= dt * 1000;
+    const kickProgress = Math.max(0, therian.kickAnimation.timer / therian.kickAnimation.duration);
+    // A simple back-and-forth rotation, directionally adjusted
+    therian.frontLeg.rotation = Math.sin((1 - kickProgress) * Math.PI) * -0.5 * therian.scale.x;
+
+    if (therian.kickAnimation.timer <= 0) {
+      therian.kickAnimation.active = false;
+      therian.frontLeg.rotation = 0;
+    }
+  }
 }
 
 const npcUpdaters = {

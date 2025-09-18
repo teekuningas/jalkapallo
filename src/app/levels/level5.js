@@ -21,6 +21,7 @@ import {
   updateSun,
   createTherian,
   updateNPCs,
+  createObstacle,
 } from './level-utils.js';
 
 export const script = [
@@ -45,7 +46,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'Taivaalla?',
+      text: 'Hei!',
       duration: 3000,
     },
   },
@@ -87,7 +88,9 @@ export function init(app, layers) {
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
   const therian = createTherian(world, characters.therian, { y: -500 });
-  therian.type = 'therian';
+  const obstacle1 = createObstacle(world, 650, 700, 0, 300);
+  const obstacle2 = createObstacle(world, 900, 1900, 250, 300);
+  const obstacle3 = createObstacle(world, 720, 1200, 50, 100);
 
   // Center the action
   player.x = 45;
@@ -105,7 +108,7 @@ export function init(app, layers) {
     kickIndicator,
     walls,
     goal,
-    obstacles: [],
+    obstacles: [obstacle1, obstacle2, obstacle3],
     npcs: [therian],
     // State properties
     worldBounds,

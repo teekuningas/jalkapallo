@@ -164,7 +164,7 @@ export function update(state, delta, inputState, app, layers, clock) {
   // Win condition check
   const { ball, goal } = finalState;
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level1' };
+    finalState = { ...finalState, nextLevel: 'level5' };
   }
 
   updateSpeakerEffects({ ...finalState, uiMessage });

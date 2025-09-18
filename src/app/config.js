@@ -58,7 +58,7 @@ export const characters = {
   therian: {
     name: 'Therian',
     color: '#FFA500',
-    speechBubbleDirection: 'down',
+    speechBubbleDirection: 'up',
     glowColor: 0xffa500,
   },
 };
