@@ -88,7 +88,7 @@ export function init(app, layers) {
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
   const therian = createTherian(world, characters.therian, { y: -500 });
-  const obstacle1 = createObstacle(world, 650, 700, 0, 300);
+  const obstacle1 = createObstacle(world, 650, 700, 0, 300, true);
   const obstacle2 = createObstacle(world, 900, 1900, 250, 300);
   const obstacle3 = createObstacle(world, 720, 1200, 50, 100);
 

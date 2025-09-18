@@ -103,7 +103,7 @@ export function startGame(app, inputState, layers, clock) {
     }
   });
 
-  changeLevel('level5');
+  changeLevel('level1');
 
   return {
     pause: () => clock.pause(),

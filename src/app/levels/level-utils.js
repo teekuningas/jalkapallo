@@ -13,10 +13,13 @@ export function createBackground(app, staticLayer) {
 }
 
 export function createSun(app, staticLayer, characterConfig) {
-  const sun = new Graphics();
+  const sun = new Container();
   sun.zIndex = 0;
-  sun.circle(0, 0, 50).fill(config.colors.sun);
   staticLayer.addChild(sun);
+
+  const body = new Graphics();
+  body.circle(0, 0, 50).fill(config.colors.sun);
+  sun.addChild(body);
 
   const halo = new Graphics();
   const beamCount = 10;
@@ -35,13 +38,16 @@ export function createSun(app, staticLayer, characterConfig) {
   sun.addChild(halo);
   sun.halo = halo;
 
+  const speechIndicator = new Container();
+  sun.addChild(speechIndicator);
+  sun.speechIndicator = speechIndicator;
+
   // Add a speech-related glowing circle
   const border = new Graphics();
   border.circle(0, 0, 60).stroke({ color: characterConfig.glowColor, width: 5 });
-  border.visible = false;
-  sun.addChild(border);
+  speechIndicator.addChild(border);
+  speechIndicator.visible = false;
 
-  sun.border = border;
   sun.characterName = characterConfig.name.toLowerCase();
 
   return sun;
@@ -59,18 +65,22 @@ export function createPlayer(world, characterConfig) {
   player.y = 0; // groundLevelY is 0
   world.addChild(player);
 
+  const body = new Container();
+  player.addChild(body);
+  player.body = body;
+
   const head = new Graphics();
   head.rect(0, 0, 50, 40).fill(config.colors.playerSkin);
-  player.addChild(head);
+  body.addChild(head);
 
   // torso (shirt)
   const torso = new Graphics();
   torso.rect(0, 40, 50, 40).fill(config.colors.playerShirt);
-  player.addChild(torso);
+  body.addChild(torso);
 
   const foot = new Container();
   foot.y = 80;
-  player.addChild(foot);
+  body.addChild(foot);
 
   // upper leg (pants)
   const foot_upper = new Graphics();
@@ -93,16 +103,21 @@ export function createPlayer(world, characterConfig) {
 
   foot.addChild(foot_lower);
 
-  player.width = 50;
-  player.height = 120;
+  const bounds = body.getLocalBounds();
+  player.bodyWidth = bounds.width;
+  player.bodyHeight = bounds.height;
 
   // Set the pivot point to the bottom-center of the player's graphics.
   // This means player.x and player.y will now refer to this point.
-  player.pivot.x = player.width / 2;
-  player.pivot.y = player.height;
+  player.pivot.x = player.bodyWidth / 2;
+  player.pivot.y = player.bodyHeight;
 
   player.foot_upper = foot_upper;
   player.foot_lower = foot_lower;
+
+  const speechIndicator = new Container();
+  player.addChild(speechIndicator);
+  player.speechIndicator = speechIndicator;
 
   const border = new Graphics();
   // The player's graphics are drawn from (0,0) to (width, height).
@@ -111,10 +126,8 @@ export function createPlayer(world, characterConfig) {
   border
     .roundRect(-padding, -padding, player.width + padding * 2, player.height + padding * 2, 15)
     .stroke({ color: characterConfig.glowColor, width: 5 });
-  border.visible = false;
-  player.addChild(border);
-
-  player.border = border;
+  speechIndicator.addChild(border);
+  speechIndicator.visible = false;
   player.characterName = characterConfig.name.toLowerCase();
 
   return player;
@@ -126,8 +139,11 @@ export function createTherian(world, characterConfig, initialPosition) {
   therian.y = initialPosition.y || -1000; // Flying height
   world.addChild(therian);
 
+  const body = new Container();
+  therian.addChild(body);
+
   const cloak = new Graphics();
-  therian.addChild(cloak);
+  body.addChild(cloak);
   therian.cloak = cloak; // so we can access it in update
 
   // Tail
@@ -135,27 +151,27 @@ export function createTherian(world, characterConfig, initialPosition) {
   tail.beginFill(config.colors.therianTail);
   tail.drawRect(-60, 10, 60, 20);
   tail.endFill();
-  therian.addChild(tail);
+  body.addChild(tail);
 
   // Legs
   const backLeg = new Graphics();
   backLeg.beginFill(config.colors.therianLegs);
   backLeg.drawRect(10, 40, 20, 30);
   backLeg.endFill();
-  therian.addChild(backLeg);
+  body.addChild(backLeg);
 
   const frontLeg = new Graphics();
   frontLeg.beginFill(config.colors.therianLegs);
   frontLeg.drawRect(40, 40, 20, 30);
   frontLeg.endFill();
-  therian.addChild(frontLeg);
+  body.addChild(frontLeg);
 
   therian.frontLeg = frontLeg;
   therian.backLeg = backLeg;
 
   // Torso
   const torso = new Container();
-  therian.addChild(torso);
+  body.addChild(torso);
 
   const back = new Graphics();
   back.beginFill(config.colors.therianBack);
@@ -173,7 +189,7 @@ export function createTherian(world, characterConfig, initialPosition) {
   const head = new Container();
   head.x = 70;
   head.y = 10;
-  therian.addChild(head);
+  body.addChild(head);
 
   const face = new Graphics();
   face.beginFill(config.colors.therianHead);
@@ -196,11 +212,16 @@ export function createTherian(world, characterConfig, initialPosition) {
   ear2.drawPolygon([0, -10, 20, -10, 10, -30]);
   head.addChild(ear2);
 
-  const bounds = therian.getLocalBounds();
-  therian.width = bounds.width;
+  const bounds = body.getLocalBounds();
+  therian.bodyWidth = bounds.width;
+  therian.bodyHeight = bounds.height;
 
   therian.pivot.x = bounds.x + bounds.width / 2;
   therian.pivot.y = bounds.y + bounds.height / 2;
+
+  const speechIndicator = new Container();
+  therian.addChild(speechIndicator);
+  therian.speechIndicator = speechIndicator;
 
   const border = new Graphics();
   const padding = 15;
@@ -213,10 +234,9 @@ export function createTherian(world, characterConfig, initialPosition) {
       15
     )
     .stroke({ color: characterConfig.glowColor, width: 5 });
-  border.visible = false;
-  therian.addChild(border);
+  speechIndicator.addChild(border);
+  speechIndicator.visible = false;
 
-  therian.border = border;
   therian.characterName = characterConfig.name.toLowerCase();
   therian.type = 'therian';
   therian.direction = 1; // 1 for right, -1 for left
@@ -229,10 +249,10 @@ export function createTherian(world, characterConfig, initialPosition) {
   };
 
   const colliderRect = {
-    x: bounds.x - padding,
-    y: bounds.y - padding,
-    width: bounds.width + padding * 2,
-    height: bounds.height + padding * 2,
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
   };
   therian.colliderRect = colliderRect;
 
@@ -345,7 +365,7 @@ export function handleInputs(state, inputState, world, delta) {
   if (inputState.keys['d'] || inputState.keys['ArrowRight']) player.x += config.playerSpeed * dt;
 
   // Kicking Logic
-  const isKickable = isPlayerKickable(player, ball, world);
+  const isKickable = isPlayerKickable(player, ball);
   updateProximityIndicator(ball, isKickable);
 
   if (inputState.pointer.isDownThisFrame) {
@@ -410,20 +430,18 @@ function resetPlayerFoot(player) {
   player.foot_lower.rotation = 0;
 }
 
-function isPlayerKickable(player, ball, world) {
-  const ballScreenPos = world.toGlobal(ball.position);
-  // Player's origin is now its center-bottom point.
-  const playerTopLeft = { x: player.x - player.width / 2, y: player.y - player.height };
-  const topLeft = world.toGlobal(playerTopLeft);
-  const bottomRight = world.toGlobal({
-    x: playerTopLeft.x + player.width,
-    y: playerTopLeft.y + player.height,
-  });
-  const rect = { left: topLeft.x, right: bottomRight.x, top: topLeft.y, bottom: bottomRight.y };
-  const closestX = Math.max(rect.left, Math.min(ballScreenPos.x, rect.right));
-  const closestY = Math.max(rect.top, Math.min(ballScreenPos.y, rect.bottom));
-  const dist = Math.hypot(ballScreenPos.x - closestX, ballScreenPos.y - closestY);
-  return dist < config.kickableDistance * world.scale.x;
+function isPlayerKickable(player, ball) {
+  const playerRect = {
+    x: player.x - player.bodyWidth / 2,
+    y: player.y - player.bodyHeight,
+    width: player.bodyWidth,
+    height: player.bodyHeight,
+  };
+
+  const closestX = Math.max(playerRect.x, Math.min(ball.x, playerRect.x + playerRect.width));
+  const closestY = Math.max(playerRect.y, Math.min(ball.y, playerRect.y + playerRect.height));
+  const dist = Math.hypot(ball.x - closestX, ball.y - closestY);
+  return dist < config.kickableDistance;
 }
 
 function collideCircleWithRectangle(circle, rect) {
@@ -478,11 +496,53 @@ export function updatePhysics(state, delta) {
     rightBoundary -= config.wallWidth;
   }
 
-  if (state.player.x - state.player.width / 2 < leftBoundary) {
-    state.player.x = leftBoundary + state.player.width / 2;
+  if (state.player.x - state.player.bodyWidth / 2 < leftBoundary) {
+    state.player.x = leftBoundary + state.player.bodyWidth / 2;
   }
-  if (state.player.x + state.player.width / 2 > rightBoundary) {
-    state.player.x = rightBoundary - state.player.width / 2;
+  if (state.player.x + state.player.bodyWidth / 2 > rightBoundary) {
+    state.player.x = rightBoundary - state.player.bodyWidth / 2;
+  }
+
+  // Player collision with solid obstacles
+  if (state.obstacles) {
+    const playerRect = {
+      x: state.player.x - state.player.bodyWidth / 2,
+      y: state.player.y - state.player.bodyHeight,
+      width: state.player.bodyWidth,
+      height: state.player.bodyHeight,
+    };
+
+    for (const obstacle of state.obstacles) {
+      if (obstacle.isSolid) {
+        const coll = obstacle.colliders[0];
+        const obstacleRect = {
+          x: obstacle.x + coll.x,
+          y: obstacle.y + coll.y,
+          width: coll.width,
+          height: coll.height,
+        };
+
+        // AABB collision check
+        if (
+          playerRect.x < obstacleRect.x + obstacleRect.width &&
+          playerRect.x + playerRect.width > obstacleRect.x &&
+          playerRect.y < obstacleRect.y + obstacleRect.height &&
+          playerRect.y + playerRect.height > obstacleRect.y
+        ) {
+          // Collision detected. Find overlap and resolve.
+          const fromLeft = playerRect.x + playerRect.width - obstacleRect.x;
+          const fromRight = obstacleRect.x + obstacleRect.width - playerRect.x;
+
+          if (fromLeft < fromRight) {
+            // Player is mostly on the left of the obstacle, so push left
+            state.player.x = obstacleRect.x - state.player.bodyWidth / 2;
+          } else {
+            // Player is mostly on the right, so push right
+            state.player.x = obstacleRect.x + obstacleRect.width + state.player.bodyWidth / 2;
+          }
+        }
+      }
+    }
   }
 
   if (ball.x - config.ballRadius < leftBoundary) {
@@ -576,15 +636,21 @@ export function updatePhysics(state, delta) {
       const collision = collideCircleWithRectangle(ballCircle, absoluteRect);
 
       if (collision.collided) {
+        // Positional correction to prevent sinking
         ball.x += collision.normalX * collision.overlap;
         ball.y += collision.normalY * collision.overlap;
 
-        const dotProduct = ballVelocity.x * collision.normalX + ballVelocity.y * collision.normalY;
-        ballVelocity.x -= 2 * dotProduct * collision.normalX;
-        ballVelocity.y -= 2 * dotProduct * collision.normalY;
+        const velocityAlongNormal =
+          ballVelocity.x * collision.normalX + ballVelocity.y * collision.normalY;
 
-        ballVelocity.x *= -config.ballBounce;
-        ballVelocity.y *= -config.ballBounce;
+        // Only bounce if moving towards the obstacle
+        if (velocityAlongNormal < 0) {
+          ballVelocity.x -= 2 * velocityAlongNormal * collision.normalX;
+          ballVelocity.y -= 2 * velocityAlongNormal * collision.normalY;
+
+          ballVelocity.x *= -config.ballBounce;
+          ballVelocity.y *= -config.ballBounce;
+        }
       }
     }
   }
@@ -742,23 +808,32 @@ export function createGoal(world, x, y, width, height, direction) {
   return goal;
 }
 
-export function createObstacle(world, leftX, rightX, bottomY, topY) {
-  const width = rightX - leftX;
-  const height = topY - bottomY;
+export function createObstacle(world, leftX, rightX, bottomY, topY, isSolid = false) {
+  const strokeWidth = 5;
+
+  const width = rightX - leftX - strokeWidth;
+  const height = topY - bottomY - strokeWidth;
 
   const obstacle = new Container();
-  obstacle.x = leftX;
-  obstacle.y = -bottomY;
+  obstacle.x = leftX + strokeWidth / 2;
+  obstacle.y = -bottomY - strokeWidth / 2;
   world.addChild(obstacle);
+
+  const fillColor = isSolid ? 0x964b00 : 0xffffff;
+  const fillAlpha = isSolid ? 0.8 : 0.5;
+  const strokeColor = 0x000000;
 
   const graphics = new Graphics();
   graphics
     .rect(0, -height, width, height)
-    .fill({ color: 0xffffff, alpha: 0.5 })
-    .stroke({ color: 0x000000, width: 5, alignment: 0 });
+    .fill({ color: fillColor, alpha: fillAlpha })
+    .stroke({ color: strokeColor, width: strokeWidth, alignment: 0 });
   obstacle.addChild(graphics);
 
-  obstacle.colliders = [{ x: 0, y: -height, width, height }];
+  obstacle.colliders = [
+    { x: -strokeWidth / 2, y: -height - strokeWidth / 2, width: width + strokeWidth, height: height + strokeWidth },
+  ];
+  obstacle.isSolid = isSolid;
 
   return obstacle;
 }
@@ -883,13 +958,13 @@ export function updateSpeakerEffects(state) {
   const speakerName = uiMessage ? uiMessage.characterName : null;
 
   characters.forEach((char) => {
-    if (char.border) {
+    if (char.speechIndicator) {
       if (char.characterName === speakerName) {
-        char.border.visible = true;
+        char.speechIndicator.visible = true;
         // Use a simple time-based glow effect
-        char.border.alpha = 0.6 + Math.sin(performance.now() / 150) * 0.4;
+        char.speechIndicator.alpha = 0.6 + Math.sin(performance.now() / 150) * 0.4;
       } else {
-        char.border.visible = false;
+        char.speechIndicator.visible = false;
       }
     }
   });
@@ -905,8 +980,8 @@ export function updateSun(state) {
 function updateTherian(therian, worldBounds, dt) {
   therian.x += therian.speed * therian.direction * dt;
 
-  const leftBoundary = worldBounds.minX + therian.width / 2 + 100;
-  const rightBoundary = worldBounds.maxX - therian.width / 2 - 100;
+  const leftBoundary = worldBounds.minX + therian.bodyWidth / 2 + 100;
+  const rightBoundary = worldBounds.maxX - therian.bodyWidth / 2 - 100;
 
   if (therian.x > rightBoundary) {
     therian.x = rightBoundary;
