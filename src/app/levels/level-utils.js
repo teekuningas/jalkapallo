@@ -831,7 +831,12 @@ export function createObstacle(world, leftX, rightX, bottomY, topY, isSolid = fa
   obstacle.addChild(graphics);
 
   obstacle.colliders = [
-    { x: -strokeWidth / 2, y: -height - strokeWidth / 2, width: width + strokeWidth, height: height + strokeWidth },
+    {
+      x: -strokeWidth / 2,
+      y: -height - strokeWidth / 2,
+      width: width + strokeWidth,
+      height: height + strokeWidth,
+    },
   ];
   obstacle.isSolid = isSolid;
 

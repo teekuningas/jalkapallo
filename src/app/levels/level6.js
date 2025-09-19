@@ -26,9 +26,9 @@ import {
 
 export const script = [
   {
-    id: 'level5-title',
+    id: 'level6-title',
     trigger: { type: 'time', time: 1 },
-    action: { type: 'showText', text: 'Taso 5', duration: 3000 },
+    action: { type: 'showText', text: 'Taso 6', duration: 3000 },
   },
   {
     id: 'therian-dialogue-1',
@@ -36,7 +36,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'therian',
-      text: 'Hei! Täällä taivaalla!',
+      text: 'Se oli hauskaa.',
       duration: 3000,
     },
   },
@@ -46,7 +46,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'Hei!',
+      text: 'Uudestaan?',
       duration: 3000,
     },
   },
@@ -56,17 +56,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'therian',
-      text: 'Tarvitsetko apua?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'jake-dialogue-2',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'jake',
-      text: 'Ootas, syötän sulle.',
+      text: 'Ok! Tän jälkeen mun pitää mennä.',
       duration: 3000,
     },
   },
@@ -75,7 +65,7 @@ export const script = [
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -500, maxX: 2000 };
+  const worldBounds = { minX: -1500, maxX: 1000 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
@@ -86,10 +76,12 @@ export function init(app, layers) {
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
-  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
+  const goal = createGoal(world, worldBounds.minX + config.wallWidth + 175, 0, 150, 180, 'right');
   const therian = createTherian(world, characters.therian, { y: -500 });
-  const obstacle1 = createObstacle(world, 650, 700, 0, 250, true);
-  const obstacle2 = createObstacle(world, 900, 1900, 200, 250);
+  const obstacle1 = createObstacle(world, 150, 200, 0, 100);
+  const obstacle2 = createObstacle(world, -300, -250, 0, 200, true);
+  const obstacle3 = createObstacle(world, -1400, -500, 200, 250);
+  const obstacle4 = createObstacle(world, -300, 0, 200, 250);
 
   // Center the action
   player.x = 45;
@@ -107,7 +99,7 @@ export function init(app, layers) {
     kickIndicator,
     walls,
     goal,
-    obstacles: [obstacle1, obstacle2],
+    obstacles: [obstacle1, obstacle2, obstacle3, obstacle4],
     npcs: [therian],
     // State properties
     worldBounds,
@@ -148,7 +140,7 @@ export function update(state, delta, inputState, app, layers, clock) {
   // Win condition check
   const { ball, goal } = finalState;
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level6' };
+    finalState = { ...finalState, nextLevel: 'level1' };
   }
 
   updateSpeakerEffects({ ...finalState, uiMessage });
