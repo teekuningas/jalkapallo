@@ -105,13 +105,13 @@ export function init(app, layers) {
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
-  const obstacle1 = createObstacle(world, 400, 500, 0, 800);
-  const obstacle2 = createObstacle(world, 800, 900, 400, 1200);
-  const obstacle3 = createObstacle(world, 1200, 1300, 0, 800);
+  const obstacle1 = createObstacle(world, 400, 500, 0, 600);
+  const obstacle2 = createObstacle(world, 800, 900, 400, 1500);
+  const obstacle3 = createObstacle(world, 1200, 1300, 0, 600);
 
   // Center the action
-  player.x = 45;
-  ball.x = -45;
+  player.x = -45;
+  ball.x = 45;
 
   const state = {
     // Static graphics

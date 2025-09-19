@@ -76,16 +76,16 @@ export function init(app, layers) {
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
-  const goal = createGoal(world, worldBounds.minX + config.wallWidth + 175, 0, 150, 180, 'right');
-  const therian = createTherian(world, characters.therian, { y: -500 });
+  const goal = createGoal(world, worldBounds.minX + config.wallWidth + 100, 0, 150, 150, 'right');
+  const therian = createTherian(world, characters.therian, { y: -400 });
   const obstacle1 = createObstacle(world, 150, 200, 0, 100);
-  const obstacle2 = createObstacle(world, -300, -250, 0, 200, true);
-  const obstacle3 = createObstacle(world, -1400, -500, 200, 250);
-  const obstacle4 = createObstacle(world, -300, 0, 200, 250);
+  const obstacle2 = createObstacle(world, -300, -250, 0, 150, true);
+  const obstacle3 = createObstacle(world, -1400, -500, 150, 200);
+  const obstacle4 = createObstacle(world, -300, 0, 150, 200);
 
   // Center the action
-  player.x = 45;
-  ball.x = -45;
+  player.x = -45;
+  ball.x = 45;
 
   const state = {
     // Static graphics
