@@ -93,7 +93,7 @@ canvas {
 .speech-bubble p {
   margin: 0;
   font-family: Arial, sans-serif;
-  font-size: clamp(13.5px, 3vmin, 27px);
+  font-size: 23px;
   color: black;
 }
 
