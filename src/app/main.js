@@ -48,6 +48,14 @@ window.addEventListener('DOMContentLoaded', () => {
         inputState.keys[e.key] = false;
       });
 
+      const globalPointerUpHandler = () => {
+        if (inputState.pointer.isDown) {
+          inputState.pointer.isDown = false;
+          inputState.pointer.isUpThisFrame = true;
+        }
+        window.removeEventListener('pointerup', globalPointerUpHandler);
+      };
+
       app.stage.interactive = true;
       app.stage.on('pointerdown', (e) => {
         if (e.originalEvent) {
@@ -60,10 +68,10 @@ window.addEventListener('DOMContentLoaded', () => {
         inputState.pointer.y = e.global.y;
         inputState.pointer.isDown = true;
         inputState.pointer.isDownThisFrame = true;
+        window.addEventListener('pointerup', globalPointerUpHandler);
       });
       app.stage.on('pointerup', (e) => {
-        inputState.pointer.isDown = false;
-        inputState.pointer.isUpThisFrame = true;
+        globalPointerUpHandler();
       });
       app.stage.on('pointermove', (e) => {
         if (e.originalEvent) {
