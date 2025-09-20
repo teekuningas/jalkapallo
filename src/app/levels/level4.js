@@ -44,7 +44,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Muinaisessa ennustuksessa sanotaan..',
+      text: 'Muinaisessa ennustuksessa sanotaan',
       duration: 3000,
     },
   },
@@ -54,7 +54,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: '..että maailmaan saapuu pelaaja..',
+      text: 'että maailmaan saapuu pelaaja',
       duration: 3000,
     },
   },
@@ -64,7 +64,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: '..joka onnistuu ohittamaan maalivahdin..',
+      text: 'joka onnistuu ohittamaan maalivahdin',
       duration: 3000,
     },
   },
@@ -74,7 +74,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: '..joka muinaisista ajoista asti..',
+      text: 'joka muinaisista ajoista asti',
       duration: 3000,
     },
   },
@@ -84,7 +84,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: '..on maailmamme maalia vahtinut.',
+      text: 'on maailmamme maalia vahtinut.',
       duration: 3000,
     },
   },

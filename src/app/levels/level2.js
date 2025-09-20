@@ -33,7 +33,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Olette siis viimein saapunut..',
+      text: 'Olette siis viimein saapunut',
       duration: 3000,
     },
   },
@@ -63,7 +63,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: '..tehdä niin paljon maaleja kuin mahdollista?',
+      text: 'Tehdä niin paljon maaleja kuin mahdollista?',
       duration: 3000,
     },
   },

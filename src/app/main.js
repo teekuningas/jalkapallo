@@ -154,16 +154,5 @@ window.addEventListener('DOMContentLoaded', () => {
         inputState.pointer.isDownThisFrame = false;
         inputState.pointer.isUpThisFrame = false;
       });
-
-      const handleOrientation = () => {
-        if (window.innerHeight > window.innerWidth) {
-          clock.pause();
-        } else {
-          clock.play();
-        }
-      };
-
-      window.addEventListener('resize', handleOrientation);
-      handleOrientation(); // Initial check
     });
 });

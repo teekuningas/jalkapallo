@@ -18,13 +18,13 @@ export function createSun(app, staticLayer, characterConfig) {
   staticLayer.addChild(sun);
 
   const body = new Graphics();
-  body.circle(0, 0, 50).fill(config.colors.sun);
+  body.circle(0, 0, 37.5).fill(config.colors.sun);
   sun.addChild(body);
 
   const halo = new Graphics();
   const beamCount = 10;
-  const innerRadius = 70;
-  const beamLength = 20;
+  const innerRadius = 52.5;
+  const beamLength = 15;
   halo.stroke({ color: config.colors.sun, width: 5, alpha: 0.8 });
   for (let i = 0; i < beamCount; i++) {
     const θ = (i / beamCount) * Math.PI * 2;
@@ -44,7 +44,7 @@ export function createSun(app, staticLayer, characterConfig) {
 
   // Add a speech-related glowing circle
   const border = new Graphics();
-  border.circle(0, 0, 60).stroke({ color: characterConfig.glowColor, width: 5 });
+  border.circle(0, 0, 45).stroke({ color: characterConfig.glowColor, width: 5 });
   speechIndicator.addChild(border);
   speechIndicator.visible = false;
 
@@ -850,8 +850,8 @@ export function handleResize(app, layers, state) {
   const { background, sun, ground } = state;
 
   background.clear().rect(0, 0, app.screen.width, app.screen.height).fill(config.colors.background);
-  sun.x = app.screen.width - 80;
-  sun.y = 80;
+  sun.x = app.screen.width - 60;
+  sun.y = 60;
   ground
     .clear()
     .rect(0, app.screen.height - config.groundHeight, app.screen.width, config.groundHeight)

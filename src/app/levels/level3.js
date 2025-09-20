@@ -44,7 +44,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Muinainen ennustus..',
+      text: 'Muinainen ennustus',
       duration: 3000,
     },
   },
@@ -54,7 +54,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: '..muinaiselta ajalta.',
+      text: 'muinaiselta ajalta.',
       duration: 3000,
     },
   },

@@ -36,7 +36,7 @@ export const script = [
     trigger: { type: 'time', time: 1 },
     action: {
       type: 'showText',
-      text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä ..',
+      text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä',
       duration: 4000,
     },
   },
@@ -54,7 +54,7 @@ export const script = [
     trigger: { type: 'time', time: 1 },
     action: {
       type: 'showText',
-      text: 'Ollessasi pallon lähellä, voit potkaista sitä klikkaamalla tai koskettamalla näyttöä ..',
+      text: 'Ollessasi pallon lähellä, voit potkaista sitä klikkaamalla tai koskettamalla näyttöä',
       duration: 4000,
     },
   },
