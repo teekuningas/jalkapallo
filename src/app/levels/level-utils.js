@@ -462,10 +462,11 @@ export function handleInputs(state, inputState, world, delta) {
   if (kickStart && inputState.pointer.isUpThisFrame) {
     kickIndicator.clear();
     if (isPlayerKickable(player, ball, world)) {
-      const ballScreenPos = world.toGlobal(ball.position);
-      const kickPower = (0.1 * 60) / world.scale.x;
-      const dx = inputState.pointer.x - ballScreenPos.x;
-      const dy = inputState.pointer.y - ballScreenPos.y;
+      const baseKickPower = 0.1 * 60;
+      const maxKickPower = 20; // Set a reasonable maximum limit
+      const kickPower = Math.min(baseKickPower / world.scale.x, maxKickPower);
+      const dx = inputState.pointer.x - world.toGlobal(ball.position).x;
+      const dy = inputState.pointer.y - world.toGlobal(ball.position).y;
       ballVelocity = { x: dx * kickPower, y: dy * kickPower };
       gameEvents.push('ballKicked');
     }
@@ -854,13 +855,11 @@ export function updateCamera(state, app, layers) {
   const scaleX = app.screen.width / requiredWidth;
   const scaleY = app.screen.height / requiredHeight;
 
-  const worldWidth = state.worldBounds.maxX - state.worldBounds.minX;
-  // base “fit‐to‐width” scale, then allow additional zoom‐out by minZoomOut factor
-  const minScale = (app.screen.width / worldWidth) * config.camera.minZoomOut;
+  const absoluteMinScale = app.screen.width / config.camera.maxViewWidth;
 
   let desiredScale = Math.min(scaleX, scaleY);
   desiredScale = Math.min(config.camera.maxZoomIn, desiredScale);
-  desiredScale = Math.max(minScale, desiredScale);
+  desiredScale = Math.max(absoluteMinScale, desiredScale);
 
   const newScale = lerp(world.scale.x, desiredScale, config.camera.smoothing);
   world.scale.set(newScale);
@@ -1164,15 +1163,13 @@ function updateElectric(electric, state, dt, layers) {
   // Decide to kick or move
   if (distance < config.kickableDistance / 2 && electric.kickCooldown <= 0) {
     // Calculate the kick velocity first
-    const kickPower = (0.1 * 60) / layers.world.scale.x;
     const kickAngle = -(Math.PI / 6) - Math.random() * ((2 * Math.PI) / 3); // Wider arc
-    const kickSpeed = 300 + Math.random() * 200;
-    const newBallVelocityX = Math.cos(kickAngle) * kickSpeed * moveDirection * kickPower;
-    const newBallVelocityY = Math.sin(kickAngle) * kickSpeed * kickPower;
+    const kickSpeed = 1000 + Math.random() * 1000; // This is now in world units/second
+    const newBallVelocityX = Math.cos(kickAngle) * kickSpeed * moveDirection;
+    const newBallVelocityY = Math.sin(kickAngle) * kickSpeed;
 
     // Determine the actual kick direction from the final velocity
     const actualKickDirection = newBallVelocityX >= 0 ? 1 : -1;
-
     // Start a new kick with the correct animation direction
     electric.kickAnimation.active = true;
     electric.kickAnimation.timer = electric.kickAnimation.duration;
@@ -1183,8 +1180,10 @@ function updateElectric(electric, state, dt, layers) {
     state.ballVelocity.x = newBallVelocityX;
     state.ballVelocity.y = newBallVelocityY;
   } else if (!electric.kickAnimation.active) {
-    // Move towards the ball if not in a kick animation
-    electric.x += (dx / distance) * electric.speed * dt;
+    if (Math.abs(dx) > 5) {
+      // Add a small dead zone to prevent jittering
+      electric.x += Math.sign(dx) * electric.speed * dt;
+    }
   }
 
   // Handle animation visuals
