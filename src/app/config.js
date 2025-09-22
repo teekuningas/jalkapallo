@@ -16,6 +16,8 @@ export const config = {
     playerShirt: 0xffff00, // yellow
     playerPants: 0x00bf00, // medium green
     playerSocks: 0xffff00, // yellow
+    electricShirt: 0x0000ff, // blue
+    electricPants: 0x000000, // black
     ball: 0xffffff,
     ballBorder: 0x0000ff,
     kickIndicator: 0xffffff,
@@ -60,5 +62,12 @@ export const characters = {
     color: '#FFA500',
     speechBubbleDirection: 'up',
     glowColor: 0xffa500,
+  },
+
+  electric: {
+    name: 'Electric',
+    color: '#0000FF',
+    speechBubbleDirection: 'down',
+    glowColor: 0x0000ff,
   },
 };

@@ -20,6 +20,8 @@ import {
   getUIMessageFromEventState,
   updateSpeakerEffects,
   updateSun,
+  createElectric,
+  updateNPCs,
 } from './level-utils.js';
 
 export const script = [
@@ -45,6 +47,9 @@ export function init(app, layers) {
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
+  const electric = createElectric(world, characters.electric, {
+    x: worldBounds.maxX - config.wallWidth - 300,
+  });
 
   // Center the action
   player.x = 45;
@@ -63,6 +68,7 @@ export function init(app, layers) {
     walls,
     goal,
     obstacles: [],
+    npcs: [electric],
     // State properties
     worldBounds,
     kickStart: null,
@@ -73,7 +79,7 @@ export function init(app, layers) {
     uiMessage: null,
   };
 
-  state.characters = [player, sun];
+  state.characters = [player, sun, electric];
 
   // The resize handler closes over the state
   const onResize = () => {
@@ -96,7 +102,8 @@ export function update(state, delta, inputState, app, layers, clock) {
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
-  let finalState = updateCamera(stateAfterPhysics, app, layers);
+  const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta, layers);
+  let finalState = updateCamera(stateAfterNPCs, app, layers);
 
   // Win condition check
   const { ball, goal } = finalState;

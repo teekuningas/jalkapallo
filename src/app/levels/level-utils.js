@@ -259,6 +259,82 @@ export function createTherian(world, characterConfig, initialPosition) {
   return therian;
 }
 
+export function createElectric(world, characterConfig, initialPosition) {
+  const electric = new Container();
+  electric.x = initialPosition.x || 0;
+  electric.y = initialPosition.y || 0;
+  world.addChild(electric);
+
+  const body = new Container();
+  electric.addChild(body);
+  electric.body = body;
+
+  const head = new Graphics();
+  head.rect(0, 0, 40, 30).fill(config.colors.playerSkin);
+  body.addChild(head);
+
+  const torso = new Graphics();
+  torso.rect(0, 30, 40, 30).fill(config.colors.electricShirt);
+  body.addChild(torso);
+
+  const foot = new Container();
+  foot.y = 60;
+  body.addChild(foot);
+
+  const foot_upper = new Graphics();
+  foot_upper.rect(0, 0, 40, 15).fill(config.colors.electricPants);
+  foot_upper.pivot.set(0, 0);
+  foot.addChild(foot_upper);
+
+  const foot_lower = new Graphics();
+  foot_lower.rect(0, 0, 40, 15).fill(config.colors.electricPants);
+  foot_lower.y = 15;
+  foot_lower.pivot.set(0, 0);
+  foot.addChild(foot_lower);
+
+  const bounds = body.getLocalBounds();
+  electric.bodyWidth = bounds.width;
+  electric.bodyHeight = bounds.height;
+
+  electric.pivot.x = electric.bodyWidth / 2;
+  electric.pivot.y = electric.bodyHeight;
+
+  electric.foot_upper = foot_upper;
+  electric.foot_lower = foot_lower;
+
+  const speechIndicator = new Container();
+  electric.addChild(speechIndicator);
+  electric.speechIndicator = speechIndicator;
+
+  const border = new Graphics();
+  const padding = 10;
+  border
+    .roundRect(-padding, -padding, electric.width + padding * 2, electric.height + padding * 2, 15)
+    .stroke({ color: characterConfig.glowColor, width: 5 });
+  speechIndicator.addChild(border);
+  speechIndicator.visible = false;
+  electric.characterName = characterConfig.name.toLowerCase();
+  electric.type = 'electric';
+  electric.speed = config.playerSpeed * 0.8;
+  electric.kickAnimation = {
+    active: false,
+    duration: 150, // ms
+    timer: 0,
+    direction: 1,
+  };
+  electric.kickCooldown = 0;
+
+  const colliderRect = {
+    x: bounds.x,
+    y: bounds.y,
+    width: bounds.width,
+    height: bounds.height,
+  };
+  electric.colliderRect = colliderRect;
+
+  return electric;
+}
+
 export function createBall(world) {
   const ball = new Graphics();
   ball.circle(0, 0, config.ballRadius).fill(config.colors.ball);
@@ -394,7 +470,7 @@ export function handleInputs(state, inputState, world, delta) {
       gameEvents.push('ballKicked');
     }
     kickStart = null;
-    resetPlayerFoot(player);
+    resetFoot(player);
   }
 
   const newState = { ...state, player, kickStart, ballVelocity };
@@ -419,7 +495,7 @@ function updatePlayerFoot(player, ball, world, inputState) {
   player.foot_lower.x += 10 * dir;
 }
 
-function resetPlayerFoot(player) {
+function resetFoot(player) {
   // Reset pivots and positions
   player.foot_upper.pivot.set(0, 0);
   player.foot_upper.x = 0;
@@ -428,6 +504,54 @@ function resetPlayerFoot(player) {
 
   player.foot_upper.rotation = 0;
   player.foot_lower.rotation = 0;
+}
+
+function updateNpcKickAnimation(npc, kickDirection) {
+  const footWidth = 40; // NPC's foot is thinner
+
+  if (kickDirection === 1) {
+    // KICK RIGHT
+    // Pivot on the left hip (x=0)
+    npc.foot_upper.pivot.set(0, 0);
+    npc.foot_upper.x = 0;
+    npc.foot_lower.pivot.set(0, 0);
+    npc.foot_lower.x = 0;
+
+    // Swing right
+    npc.foot_upper.rotation = -0.2;
+    npc.foot_lower.rotation = 0.2;
+    npc.foot_lower.x += 10;
+  } else {
+    // KICK LEFT
+    // Pivot on the right hip (x=footWidth)
+    npc.foot_upper.pivot.set(footWidth, 0);
+    npc.foot_upper.x = footWidth;
+    npc.foot_lower.pivot.set(footWidth, 0);
+    npc.foot_lower.x = footWidth;
+
+    // Swing left
+    npc.foot_upper.rotation = 0.2;
+    npc.foot_lower.rotation = -0.2;
+    npc.foot_lower.x -= 10;
+  }
+}
+
+function updateNpcFoot(npc, kickDirection) {
+  const footWidth = 40; // NPC's foot is thinner
+  const dir = kickDirection;
+
+  // Pivot about the inner edge
+  const pivotOnRightSide = dir === -1;
+  const pivotX = pivotOnRightSide ? footWidth : 0;
+  npc.foot_upper.pivot.set(pivotX, 0);
+  npc.foot_upper.x = pivotX;
+  npc.foot_lower.pivot.set(pivotX, 0);
+  npc.foot_lower.x = pivotX;
+
+  // Now swing and extend
+  npc.foot_upper.rotation = -0.2 * dir;
+  npc.foot_lower.rotation = 0.2 * dir;
+  npc.foot_lower.x += 10 * dir;
 }
 
 function isPlayerKickable(player, ball) {
@@ -982,7 +1106,8 @@ export function updateSun(state) {
   }
 }
 
-function updateTherian(therian, worldBounds, dt) {
+function updateTherian(therian, state, dt, layers) {
+  const { worldBounds } = state;
   therian.x += therian.speed * therian.direction * dt;
 
   const leftBoundary = worldBounds.minX + therian.bodyWidth / 2 + 100;
@@ -1022,11 +1147,65 @@ function updateTherian(therian, worldBounds, dt) {
   }
 }
 
+function updateElectric(electric, state, dt, layers) {
+  // Update timers
+  if (electric.kickCooldown > 0) {
+    electric.kickCooldown -= dt * 1000;
+  }
+  if (electric.kickAnimation.active) {
+    electric.kickAnimation.timer -= dt * 1000;
+  }
+
+  const dx = state.ball.x - electric.x;
+  const dy = state.ball.y - electric.y;
+  const distance = Math.hypot(dx, dy);
+  const moveDirection = dx > 0 ? 1 : -1;
+
+  // Decide to kick or move
+  if (distance < config.kickableDistance / 2 && electric.kickCooldown <= 0) {
+    // Calculate the kick velocity first
+    const kickPower = (0.1 * 60) / layers.world.scale.x;
+    const kickAngle = -(Math.PI / 6) - Math.random() * ((2 * Math.PI) / 3); // Wider arc
+    const kickSpeed = 300 + Math.random() * 200;
+    const newBallVelocityX = Math.cos(kickAngle) * kickSpeed * moveDirection * kickPower;
+    const newBallVelocityY = Math.sin(kickAngle) * kickSpeed * kickPower;
+
+    // Determine the actual kick direction from the final velocity
+    const actualKickDirection = newBallVelocityX >= 0 ? 1 : -1;
+
+    // Start a new kick with the correct animation direction
+    electric.kickAnimation.active = true;
+    electric.kickAnimation.timer = electric.kickAnimation.duration;
+    electric.kickAnimation.direction = actualKickDirection;
+    electric.kickCooldown = 500; // 500ms cooldown
+
+    // Apply the calculated velocity to the ball
+    state.ballVelocity.x = newBallVelocityX;
+    state.ballVelocity.y = newBallVelocityY;
+  } else if (!electric.kickAnimation.active) {
+    // Move towards the ball if not in a kick animation
+    electric.x += (dx / distance) * electric.speed * dt;
+  }
+
+  // Handle animation visuals
+  if (electric.kickAnimation.active) {
+    updateNpcKickAnimation(electric, electric.kickAnimation.direction);
+
+    if (electric.kickAnimation.timer <= 0) {
+      electric.kickAnimation.active = false;
+      resetFoot(electric);
+    }
+  } else {
+    resetFoot(electric);
+  }
+}
+
 const npcUpdaters = {
   therian: updateTherian,
+  electric: updateElectric,
 };
 
-export function updateNPCs(state, delta) {
+export function updateNPCs(state, delta, layers) {
   if (!state.npcs) return state;
 
   const dt = delta / 1000;
@@ -1034,7 +1213,7 @@ export function updateNPCs(state, delta) {
   const newNpcs = state.npcs.map((npc) => {
     const updater = npcUpdaters[npc.type];
     if (updater) {
-      updater(npc, state.worldBounds, dt);
+      updater(npc, state, dt, layers);
     }
     return npc;
   });

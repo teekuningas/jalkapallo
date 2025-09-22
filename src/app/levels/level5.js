@@ -142,7 +142,7 @@ export function update(state, delta, inputState, app, layers, clock) {
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
-  const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta);
+  const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta, layers);
   let finalState = updateCamera(stateAfterNPCs, app, layers);
 
   // Win condition check
