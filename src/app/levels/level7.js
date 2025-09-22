@@ -13,59 +13,27 @@ import {
   createGround,
   createWalls,
   createGoal,
+  createObstacle,
   checkGoal,
   initEventsState,
   updateEvents,
   getUIMessageFromEventState,
   updateSpeakerEffects,
   updateSun,
-  createTherian,
-  updateNPCs,
-  createObstacle,
 } from './level-utils.js';
 
 export const script = [
   {
-    id: 'level6-title',
-    trigger: { type: 'time', time: 1 },
-    action: { type: 'showText', text: 'Taso 6', duration: 3000 },
-  },
-  {
-    id: 'therian-dialogue-1',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'therian',
-      text: 'Se oli hauskaa.',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'jake',
-      text: 'Uudestaan?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'therian-dialogue-2',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'therian',
-      text: 'Ok! Tän jälkeen mun pitää mennä.',
-      duration: 3000,
-    },
+    id: 'level7-title',
+    trigger: { type: 'time', time: 1000 },
+    action: { type: 'showText', text: 'Level 7', duration: 3000 },
   },
 ];
 
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -1500, maxX: 1000 };
+  const worldBounds = { minX: -500, maxX: 2000 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
@@ -76,16 +44,11 @@ export function init(app, layers) {
   const groundMarkers = createGroundMarkers(world, worldBounds, true);
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
-  const goal = createGoal(world, worldBounds.minX + config.wallWidth + 100, 0, 150, 150, 'right');
-  const therian = createTherian(world, characters.therian, { y: -400 });
-  const obstacle1 = createObstacle(world, 150, 200, 0, 100);
-  const obstacle2 = createObstacle(world, -300, -250, 0, 150, true);
-  const obstacle3 = createObstacle(world, -1400, -500, 150, 200);
-  const obstacle4 = createObstacle(world, -300, 0, 150, 200);
+  const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
 
   // Center the action
-  player.x = -45;
-  ball.x = 45;
+  player.x = 45;
+  ball.x = -45;
 
   const state = {
     // Static graphics
@@ -99,8 +62,7 @@ export function init(app, layers) {
     kickIndicator,
     walls,
     goal,
-    obstacles: [obstacle1, obstacle2, obstacle3, obstacle4],
-    npcs: [therian],
+    obstacles: [],
     // State properties
     worldBounds,
     kickStart: null,
@@ -111,7 +73,7 @@ export function init(app, layers) {
     uiMessage: null,
   };
 
-  state.characters = [player, sun, therian];
+  state.characters = [player, sun];
 
   // The resize handler closes over the state
   const onResize = () => {
@@ -134,13 +96,12 @@ export function update(state, delta, inputState, app, layers, clock) {
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
-  const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta);
-  let finalState = updateCamera(stateAfterNPCs, app, layers);
+  let finalState = updateCamera(stateAfterPhysics, app, layers);
 
   // Win condition check
   const { ball, goal } = finalState;
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level7' };
+    finalState = { ...finalState, nextLevel: 'level1' };
   }
 
   updateSpeakerEffects({ ...finalState, uiMessage });
