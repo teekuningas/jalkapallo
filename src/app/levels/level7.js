@@ -28,7 +28,27 @@ export const script = [
   {
     id: 'level7-title',
     trigger: { type: 'time', time: 1000 },
-    action: { type: 'showText', text: 'Level 7', duration: 3000 },
+    action: { type: 'showText', text: 'Taso 7', duration: 3000 },
+  },
+  {
+    id: 'electric-dialogue-1',
+    trigger: { type: 'time', time: 5000 },
+    action: {
+      type: 'showText',
+      characterName: 'electric',
+      text: 'Syötä mulle! Oon vapaana!',
+      duration: 3000,
+    },
+  },
+  {
+    id: 'sun-fact-1',
+    trigger: { type: 'time', time: 13000 },
+    action: {
+      type: 'showText',
+      characterName: 'sun',
+      text: 'Tiesittekö, että jalkapalloa on pelattu kuussa? Astronautit pelasivat sitä Apollo 14 -lennolla.',
+      duration: 5000,
+    },
   },
 ];
 
@@ -91,14 +111,9 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
-  const { newState: stateAfterInput, gameEvents } = handleInputs(
-    state,
-    inputState,
-    layers.world,
-    delta
-  );
+  const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
+  const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);

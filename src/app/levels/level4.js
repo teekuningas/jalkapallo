@@ -25,12 +25,12 @@ import {
 export const script = [
   {
     id: 'level4-title',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 1000 },
     action: { type: 'showText', text: 'Taso 4', duration: 3000 },
   },
   {
     id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 5000 },
     action: {
       type: 'showText',
       characterName: 'jake',
@@ -40,52 +40,42 @@ export const script = [
   },
   {
     id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 9000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Muinaisessa ennustuksessa sanotaan',
+      text: 'Muinaisessa ennustuksessa sanotaan, että maailmaan saapuu pelaaja,',
       duration: 3000,
     },
   },
   {
     id: 'sun-dialogue-2',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 13000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'että maailmaan saapuu pelaaja',
+      text: 'joka onnistuu ohittamaan maalivahdin,',
       duration: 3000,
     },
   },
   {
     id: 'sun-dialogue-3',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 17000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'joka onnistuu ohittamaan maalivahdin',
+      text: 'joka muinaisista ajoista asti on maailmamme maalia vahtinut.',
       duration: 3000,
     },
   },
   {
-    id: 'sun-dialogue-4',
-    trigger: { type: 'time', time: 1 },
+    id: 'sun-fact-1',
+    trigger: { type: 'time', time: 25000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'joka muinaisista ajoista asti',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'sun-dialogue-5',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'on maailmamme maalia vahtinut.',
-      duration: 3000,
+      text: 'Tiesitkö, että maailman suurin jalkapallostadion on Pohjois-Koreassa? Sinne mahtuu 114 000 ihmistä.',
+      duration: 5000,
     },
   },
 ];
@@ -148,14 +138,9 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
-  const { newState: stateAfterInput, gameEvents } = handleInputs(
-    state,
-    inputState,
-    layers.world,
-    delta
-  );
+  const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
+  const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);

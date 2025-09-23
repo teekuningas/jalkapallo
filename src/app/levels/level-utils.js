@@ -432,7 +432,6 @@ export function updateProximityIndicator(ball, isKickable) {
 
 export function handleInputs(state, inputState, world, delta) {
   let { player, ball, kickIndicator, kickStart, ballVelocity } = state;
-  const gameEvents = [];
 
   const dt = delta / 1000;
 
@@ -468,14 +467,13 @@ export function handleInputs(state, inputState, world, delta) {
       const dx = inputState.pointer.x - world.toGlobal(ball.position).x;
       const dy = inputState.pointer.y - world.toGlobal(ball.position).y;
       ballVelocity = { x: dx * kickPower, y: dy * kickPower };
-      gameEvents.push('ballKicked');
     }
     kickStart = null;
     resetFoot(player);
   }
 
   const newState = { ...state, player, kickStart, ballVelocity };
-  return { newState, gameEvents };
+  return { newState };
 }
 
 function updatePlayerFoot(player, ball, world, inputState) {
@@ -1008,12 +1006,7 @@ export function checkGoal(ball, goal) {
 export function initEventsState() {
   return {
     time: 0,
-    queue: [], // { text, duration, startTime, characterName? }[]
-    activeMessage: null, // { text, duration, startTime, characterName? }
-    completedEvents: new Set(),
-    lastMessageEndTime: 0,
-    // A 1 second delay between messages
-    messageDelay: 1000,
+    activeMessage: null,
   };
 }
 
@@ -1024,58 +1017,32 @@ export function getUIMessageFromEventState(eventState) {
   return eventState.activeMessage;
 }
 
-export function updateEvents(eventState, script, gameState, gameEvents, clock) {
+export function updateEvents(eventState, script, gameState, clock) {
   const newTime = clock.getTime();
-  let newQueue = [...eventState.queue];
-  let newCompletedEvents = new Set(eventState.completedEvents);
   let activeMessage = eventState.activeMessage;
-  let lastMessageEndTime = eventState.lastMessageEndTime;
 
-  // 1. Check for new triggers
-  script.forEach((event) => {
-    const { trigger, action, once, id } = event;
-    if (newCompletedEvents.has(id)) {
-      return; // Skip completed one-time events
-    }
+  // Find the script item that should be active
+  const currentScriptItem = script.find(
+    (item) => newTime >= item.trigger.time && newTime < item.trigger.time + item.action.duration
+  );
 
-    let isTriggered = false;
-    if (trigger.type === 'time' && newTime >= trigger.time && eventState.time < trigger.time) {
-      isTriggered = true;
-    } else if (trigger.type === 'event' && gameEvents.includes(trigger.name)) {
-      isTriggered = true;
-    }
-
-    if (isTriggered) {
-      if (action.type === 'showText') {
-        newQueue.push(action);
-      }
-      if (once) {
-        newCompletedEvents.add(id);
-      }
-    }
-  });
-
-  // 2. Process message queue
-  if (activeMessage) {
-    // Check if active message has finished
-    if (newTime - activeMessage.startTime >= activeMessage.duration) {
-      activeMessage = null;
-      lastMessageEndTime = newTime;
+  if (currentScriptItem) {
+    // If there is no active message, or the active message is different from the current script item
+    if (!activeMessage || activeMessage.id !== currentScriptItem.id) {
+      activeMessage = {
+        ...currentScriptItem.action,
+        id: currentScriptItem.id,
+        startTime: newTime,
+      };
     }
   } else {
-    // If no active message, try to show the next one from the queue
-    if (newQueue.length > 0 && newTime - lastMessageEndTime >= eventState.messageDelay) {
-      activeMessage = { ...newQueue.shift(), startTime: newTime };
-    }
+    activeMessage = null;
   }
 
   return {
     ...eventState,
     time: newTime,
-    queue: newQueue,
-    completedEvents: newCompletedEvents,
     activeMessage,
-    lastMessageEndTime,
   };
 }
 

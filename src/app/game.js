@@ -65,6 +65,8 @@ export function startGame(app, inputState, layers, clock) {
   function changeLevel(levelName, forceReload = false) {
     if (currentLevelName === levelName && !forceReload) return;
 
+    clock.reset();
+
     if (levelState && levelState.onResize) {
       window.removeEventListener('resize', levelState.onResize);
     }

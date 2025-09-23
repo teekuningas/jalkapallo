@@ -16,5 +16,8 @@ export function createClock() {
     },
     getTime: () => time,
     isPaused: () => isPaused,
+    reset: () => {
+      time = 0;
+    },
   };
 }

@@ -27,37 +27,37 @@ import {
 export const script = [
   {
     id: 'level6-title',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 1000 },
     action: { type: 'showText', text: 'Taso 6', duration: 3000 },
   },
   {
     id: 'therian-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 5000 },
     action: {
       type: 'showText',
       characterName: 'therian',
-      text: 'Se oli hauskaa.',
+      text: 'Se oli hauskaa. Uudestaan?',
       duration: 3000,
     },
   },
   {
     id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 9000 },
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'Uudestaan?',
+      text: 'Ok! Vielä kerran!',
       duration: 3000,
     },
   },
   {
-    id: 'therian-dialogue-2',
-    trigger: { type: 'time', time: 1 },
+    id: 'sun-fact-1',
+    trigger: { type: 'time', time: 17000 },
     action: {
       type: 'showText',
-      characterName: 'therian',
-      text: 'Ok! Tän jälkeen mun pitää mennä.',
-      duration: 3000,
+      characterName: 'sun',
+      text: 'Tiesittekö, että ammattilaisjalkapalloilija juoksee keskimäärin 11 kilometriä yhden ottelun aikana?',
+      duration: 5000,
     },
   },
 ];
@@ -123,14 +123,9 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
-  const { newState: stateAfterInput, gameEvents } = handleInputs(
-    state,
-    inputState,
-    layers.world,
-    delta
-  );
+  const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
+  const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);

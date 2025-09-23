@@ -27,12 +27,12 @@ import {
 export const script = [
   {
     id: 'level5-title',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 1000 },
     action: { type: 'showText', text: 'Taso 5', duration: 3000 },
   },
   {
     id: 'therian-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 5000 },
     action: {
       type: 'showText',
       characterName: 'therian',
@@ -42,32 +42,22 @@ export const script = [
   },
   {
     id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 9000 },
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'Hei!',
+      text: 'Hei! Tarvitsen apuasi.',
       duration: 3000,
     },
   },
   {
-    id: 'therian-dialogue-2',
-    trigger: { type: 'time', time: 1 },
+    id: 'sun-fact-1',
+    trigger: { type: 'time', time: 17000 },
     action: {
       type: 'showText',
-      characterName: 'therian',
-      text: 'Tarvitsetko apua?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'jake-dialogue-2',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'jake',
-      text: 'Ootas, syötän sulle.',
-      duration: 3000,
+      characterName: 'sun',
+      text: 'Tiesittekö, että ensimmäisessä maailmansodassa jouluna 1914 saksalaiset ja brittiläiset sotilaat pitivät tulitauon ja pelasivat jalkapalloa?',
+      duration: 5000,
     },
   },
 ];
@@ -131,14 +121,9 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
-  const { newState: stateAfterInput, gameEvents } = handleInputs(
-    state,
-    inputState,
-    layers.world,
-    delta
-  );
+  const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
+  const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);

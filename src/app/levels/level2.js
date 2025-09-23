@@ -24,56 +24,36 @@ import {
 export const script = [
   {
     id: 'level2-title',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 1000 },
     action: { type: 'showText', text: 'Taso 2', duration: 3000 },
   },
   {
     id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 5000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Olette siis viimein saapunut',
+      text: 'Olet siis viimein saapunut.',
       duration: 3000,
     },
   },
   {
     id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 9000 },
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'Viimein? Missä edes olen?',
+      text: 'Missä minä olen?',
       duration: 3000,
     },
   },
   {
     id: 'sun-dialogue-2',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 13000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Katsokaa ympärillenne. Tiedättekö tehtävänne?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'jake-dialogue-2',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'jake',
-      text: 'Tehdä niin paljon maaleja kuin mahdollista?',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'sun-dialogue-3',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'Teidän tehtävänne on täyttää toteen ennustus!',
+      text: 'Tehtäväsi on täyttää muinainen ennustus.',
       duration: 3000,
     },
   },
@@ -134,14 +114,9 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
-  const { newState: stateAfterInput, gameEvents } = handleInputs(
-    state,
-    inputState,
-    layers.world,
-    delta
-  );
+  const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
+  const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);

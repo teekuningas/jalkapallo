@@ -24,59 +24,30 @@ import {
 export const script = [
   {
     id: 'intro1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 1000 },
     action: {
       type: 'showText',
       text: 'Tervetuloa jalkapallon ihmeelliseen maailmaan!',
-      duration: 4000,
+      duration: 3000,
     },
   },
   {
     id: 'intro2',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 5000 },
     action: {
       type: 'showText',
-      text: 'Voit ohjata hahmoa näppäimistön nuolinäppäimillä',
-      duration: 4000,
-    },
-  },
-  {
-    id: 'intro3',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      text: 'tai koskettamalla vasemman laidan painikkeita.',
-      duration: 4000,
+      text: 'Ohjaa hahmoa nuolinäppäimillä tai kosketusnapeilla.',
+      duration: 3000,
     },
   },
   {
     id: 'kickHelp1',
-    trigger: { type: 'time', time: 1 },
+    trigger: { type: 'time', time: 9000 },
     action: {
       type: 'showText',
-      text: 'Ollessasi pallon lähellä, voit potkaista sitä klikkaamalla tai koskettamalla näyttöä',
-      duration: 4000,
-    },
-  },
-  {
-    id: 'kickHelp2',
-    trigger: { type: 'time', time: 1 },
-    action: {
-      type: 'showText',
-      text: 'siihen kohtaan, jonka suuntaan haluat pallon lähtevän.',
-      duration: 4000,
-    },
-  },
-  {
-    id: 'firstKick',
-    trigger: { type: 'event', name: 'ballKicked' },
-    action: {
-      type: 'showText',
-      text: 'Tähti on syttynyt!',
+      text: 'Potkaise palloa klikkaamalla haluamaasi suuntaan.',
       duration: 3000,
-      characterName: 'sun',
     },
-    once: true,
   },
 ];
 
@@ -133,14 +104,9 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
-  const { newState: stateAfterInput, gameEvents } = handleInputs(
-    state,
-    inputState,
-    layers.world,
-    delta
-  );
+  const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  const newEventState = updateEvents(state.eventState, script, state, gameEvents, clock);
+  const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
