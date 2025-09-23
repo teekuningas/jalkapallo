@@ -87,7 +87,7 @@ export function init(app, layers) {
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 150, 'left');
-  const therian = createTherian(world, characters.therian, { y: -400 });
+  const therian = createTherian(world, characters.therian, { y: -500 });
   const obstacle1 = createObstacle(world, 650, 700, 0, 200, true);
   const obstacle2 = createObstacle(world, 900, 1900, 150, 200);
 
