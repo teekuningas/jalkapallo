@@ -13,49 +13,28 @@ import {
   createGround,
   createWalls,
   createGoal,
-  createObstacle,
   checkGoal,
   initEventsState,
   updateEvents,
   getUIMessageFromEventState,
   updateSpeakerEffects,
   updateSun,
-  createElectric,
+  createThomas,
   updateNPCs,
 } from './level-utils.js';
 
 export const script = [
   {
-    id: 'level8-title',
+    id: 'level9-title',
     trigger: { type: 'time', time: 1000 },
-    action: { type: 'showText', text: 'Taso 8', duration: 3000 },
-  },
-  {
-    id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 5000 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'Olet melkein valmis kohtaamaan viimeisen haasteen.',
-      duration: 3000,
-    },
-  },
-  {
-    id: 'sun-fact-1',
-    trigger: { type: 'time', time: 13000 },
-    action: {
-      type: 'showText',
-      characterName: 'sun',
-      text: 'Tiesittekö, että nopein maali jalkapallon historiassa tehtiin vain 2.4 sekunnissa?',
-      duration: 5000,
-    },
+    action: { type: 'showText', text: 'Taso 9', duration: 3000 },
   },
 ];
 
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -500, maxX: 3000 };
+  const worldBounds = { minX: -3000, maxX: 3000 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
@@ -67,18 +46,10 @@ export function init(app, layers) {
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
-  const obstacle1 = createObstacle(world, 200, 300, 0, 200);
-  const obstacle2 = createObstacle(world, 700, 800, 0, 200);
-  const obstacle3 = createObstacle(world, 1200, 1300, 0, 200);
-  const obstacle4 = createObstacle(world, 1700, 1800, 0, 200, true);
-  const obstacle5 = createObstacle(world, 2200, 2300, 0, 200);
-  const obstacle6 = createObstacle(world, 450, 550, 400, 600);
-  const obstacle7 = createObstacle(world, 950, 1050, 400, 600);
-  const obstacle8 = createObstacle(world, 1450, 1550, 400, 600);
-  const obstacle9 = createObstacle(world, 1950, 2050, 400, 4000);
-  const electric = createElectric(world, characters.electric, {
-    x: worldBounds.maxX - config.wallWidth - 300,
+  const thomas = createThomas(world, characters.thomas, {
+    x: worldBounds.maxX - config.wallWidth - 350,
   });
+  thomas.scale.x = -1; // Face left
 
   // Center the action
   player.x = 45;
@@ -96,18 +67,8 @@ export function init(app, layers) {
     kickIndicator,
     walls,
     goal,
-    obstacles: [
-      obstacle1,
-      obstacle2,
-      obstacle3,
-      obstacle4,
-      obstacle5,
-      obstacle6,
-      obstacle7,
-      obstacle8,
-      obstacle9,
-    ],
-    npcs: [electric],
+    obstacles: [],
+    npcs: [thomas],
     // State properties
     worldBounds,
     kickStart: null,
@@ -118,7 +79,7 @@ export function init(app, layers) {
     uiMessage: null,
   };
 
-  state.characters = [player, sun, electric];
+  state.characters = [player, sun, thomas];
 
   // The resize handler closes over the state
   const onResize = () => {
@@ -142,7 +103,7 @@ export function update(state, delta, inputState, app, layers, clock) {
   // Win condition check
   const { ball, goal } = finalState;
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level9' };
+    finalState = { ...finalState, nextLevel: 'level1' };
   }
 
   updateSpeakerEffects({ ...finalState, uiMessage });

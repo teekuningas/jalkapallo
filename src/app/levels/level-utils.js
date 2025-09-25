@@ -335,6 +335,89 @@ export function createElectric(world, characterConfig, initialPosition) {
   return electric;
 }
 
+export function createThomas(world, characterConfig, initialPosition) {
+  const thomas = new Container();
+  thomas.x = initialPosition.x || 0;
+  thomas.y = initialPosition.y || 0;
+  world.addChild(thomas);
+
+  const body = new Container();
+  thomas.addChild(body);
+  thomas.body = body;
+
+  // Thomas is 85% of the main player's size
+  const scale = 0.85;
+  const head = new Graphics();
+  head.rect(0, 0, 50 * scale, 40 * scale).fill(config.colors.playerSkin);
+  body.addChild(head);
+
+  const torso = new Graphics();
+  torso.rect(0, 40 * scale, 50 * scale, 40 * scale).fill(config.colors.thomasShirt);
+  body.addChild(torso);
+
+  const foot = new Container();
+  foot.y = 80 * scale;
+  body.addChild(foot);
+
+  const foot_upper = new Graphics();
+  foot_upper.rect(0, 0, 50 * scale, 20 * scale).fill(config.colors.thomasPants);
+  foot_upper.pivot.set(0, 0);
+  foot.addChild(foot_upper);
+
+  const foot_lower = new Graphics();
+  foot_lower.rect(0, 0, 50 * scale, 20 * scale).fill(config.colors.thomasPants);
+  foot_lower.y = 20 * scale;
+  foot_lower.pivot.set(0, 0);
+  foot.addChild(foot_lower);
+
+  const bounds = body.getLocalBounds();
+  thomas.bodyWidth = bounds.width;
+  thomas.bodyHeight = bounds.height;
+
+  thomas.pivot.x = thomas.bodyWidth / 2;
+  thomas.pivot.y = thomas.bodyHeight;
+
+  thomas.foot_upper = foot_upper;
+  thomas.foot_lower = foot_lower;
+
+  const speechIndicator = new Container();
+  thomas.addChild(speechIndicator);
+  thomas.speechIndicator = speechIndicator;
+
+  const border = new Graphics();
+  const padding = 10;
+  border
+    .roundRect(-padding, -padding, thomas.width + padding * 2, thomas.height + padding * 2, 15)
+    .stroke({ color: characterConfig.glowColor, width: 5 });
+  speechIndicator.addChild(border);
+  speechIndicator.visible = false;
+  thomas.characterName = characterConfig.name.toLowerCase();
+  thomas.type = 'thomas';
+
+  // Add the magic ring
+  const ringRadius = 90;
+  const magicRing = new Graphics();
+  magicRing.x = thomas.bodyWidth / 2;
+  magicRing.y = thomas.bodyHeight / 2;
+
+  // Create a multi-layered glow effect
+  const glowColor = characterConfig.glowColor;
+  // 1. Outer, faint glow
+  magicRing.circle(0, 0, ringRadius + 10).stroke({ color: glowColor, width: 12, alpha: 0.15 });
+  // 2. Mid, main glow
+  magicRing.circle(0, 0, ringRadius + 2).stroke({ color: glowColor, width: 6, alpha: 0.4 });
+  // 3. Inner, sharp ring
+  magicRing.circle(0, 0, ringRadius).stroke({ color: 0xffffff, width: 3, alpha: 0.8 });
+
+  magicRing.visible = false;
+  thomas.addChild(magicRing);
+  thomas.magicRing = magicRing;
+  thomas.ringRadius = ringRadius;
+  thomas.magicRing.animation = { active: false, timer: 0, duration: 500 };
+
+  return thomas;
+}
+
 export function createBall(world) {
   const ball = new Graphics();
   ball.circle(0, 0, config.ballRadius).fill(config.colors.ball);
@@ -838,6 +921,47 @@ export function updatePhysics(state, delta) {
     }
   }
 
+  // Thomas's magic ring collision
+  if (state.npcs) {
+    for (const npc of state.npcs) {
+      if (npc.type === 'thomas') {
+        const ringCenterX = npc.x;
+        const ringCenterY = npc.y - npc.bodyHeight / 2;
+        const dx = ball.x - ringCenterX;
+        const dy = ball.y - ringCenterY;
+        const distance = Math.hypot(dx, dy);
+
+        if (distance < npc.ringRadius + config.ballRadius) {
+          // Collision detected
+          npc.magicRing.visible = true;
+          npc.magicRing.animation.active = true;
+          npc.magicRing.animation.timer = npc.magicRing.animation.duration;
+
+          const overlap = npc.ringRadius + config.ballRadius - distance;
+          const normalX = distance === 0 ? 1 : dx / distance;
+          const normalY = distance === 0 ? 0 : dy / distance;
+
+          // Calculate velocity along normal
+          const velocityAlongNormal = ballVelocity.x * normalX + ballVelocity.y * normalY;
+
+          // Only bounce if moving towards the obstacle
+          if (velocityAlongNormal < 0) {
+            // Positional correction to prevent sinking
+            ball.x += normalX * overlap;
+            ball.y += normalY * overlap;
+
+            // Reflect ball's velocity
+            ballVelocity.x -= 2 * velocityAlongNormal * normalX;
+            ballVelocity.y -= 2 * velocityAlongNormal * normalY;
+
+            ballVelocity.x *= -config.ballBounce;
+            ballVelocity.y *= -config.ballBounce;
+          }
+        }
+      }
+    }
+  }
+
   return { ...state, ball, ballVelocity };
 }
 
@@ -1166,9 +1290,23 @@ function updateElectric(electric, state, dt, layers) {
   }
 }
 
+function updateThomas(thomas, state, dt) {
+  if (thomas.magicRing.animation.active) {
+    thomas.magicRing.animation.timer -= dt * 1000;
+    const progress = thomas.magicRing.animation.timer / thomas.magicRing.animation.duration;
+    thomas.magicRing.alpha = Math.max(0, progress);
+
+    if (thomas.magicRing.animation.timer <= 0) {
+      thomas.magicRing.animation.active = false;
+      thomas.magicRing.visible = false;
+    }
+  }
+}
+
 const npcUpdaters = {
   therian: updateTherian,
   electric: updateElectric,
+  thomas: updateThomas,
 };
 
 export function updateNPCs(state, delta, layers) {
