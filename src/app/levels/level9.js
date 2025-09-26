@@ -28,18 +28,34 @@ import {
   collideCircleWithRectangle,
 } from './level-utils.js';
 
+// The script is now in Finnish and refined.
 export const script = [
   {
-    id: 'level9-title',
-    trigger: { type: 'time', time: 1000 },
-    action: { type: 'showText', text: 'Taso 9', duration: 3000 },
+    id: 'l9-diag-1',
+    trigger: { type: 'condition', check: (s) => s.storyState === 'TAUNT' },
+    action: { characterName: 'thomas', text: 'Et ikinä tee maalia minua vastaan!', duration: 3000 },
+  },
+  {
+    id: 'l9-diag-3',
+    trigger: { type: 'condition', check: (s) => s.storyState === 'TV_EVENT' },
+    action: { characterName: 'thomas', text: 'Vau, onko tuo uusi peli?!', duration: 3000 },
+  },
+  {
+    id: 'l9-diag-4',
+    trigger: { type: 'condition', check: (s) => s.storyState === 'PLAY_POSSIBLE' },
+    action: { characterName: 'jake', text: 'Nyt on tilaisuuteni!', duration: 3000 },
+  },
+  {
+    id: 'l9-diag-5',
+    trigger: { type: 'condition', check: (s) => s.storyState === 'CELEBRATION' },
+    action: { characterName: 'thomas', text: 'Sait sen tehtyä! Pelataan yhdessä!', duration: 4000 },
   },
 ];
 
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -3000, maxX: 3000 };
+  const worldBounds = { minX: -3000, maxX: 1500 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);
@@ -51,10 +67,10 @@ export function init(app, layers) {
   const kickIndicator = createKickIndicator(uiLayer);
   const walls = createWalls(world, worldBounds);
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 180, 'left');
-  const thomas = createThomas(world, characters.thomas, {
-    x: worldBounds.maxX - config.wallWidth - 350,
-  });
-  thomas.scale.x = -1; // Face left
+
+  const thomas = createThomas(world, characters.thomas, { x: 150 });
+  thomas.scale.x = 1; // Face right initially
+  thomas.collisionsEnabled = false; // Collision is off by default
 
   // Living room assets
   const sofa = createSofa(world, { x: worldBounds.minX + 450, y: 0 });
@@ -70,55 +86,121 @@ export function init(app, layers) {
     true
   );
 
-  // Center the action
   player.x = -45;
   ball.x = 45;
 
   const state = {
-    // Static graphics
     background,
     sun,
     ground,
     sofa,
     tv,
     button,
-    // Dynamic entities
     player,
     ball,
     groundMarkers,
     kickIndicator,
     walls,
     goal,
-    obstacles: [obstacle], // Add the new obstacle here
+    obstacles: [obstacle],
     npcs: [thomas],
-    // State properties
     worldBounds,
     kickStart: null,
     ballVelocity: { x: 0, y: 0 },
     nextLevel: null,
-    onResize: null, // Placeholder
+    onResize: null,
     eventState: initEventsState(),
     uiMessage: null,
-    storyState: 'taunt',
-    tvState: { isOn: false },
+    storyState: 'TAUNT',
+    playerIsControllable: false,
+    tvOn: false,
+    thomas: {
+      targetX: null,
+      speed: 500, // Increased speed
+      patrolDirection: 1,
+    },
   };
 
   state.characters = [player, sun, thomas];
 
-  // The resize handler closes over the state
-  const onResize = () => {
-    handleResize(app, layers, state);
-  };
+  const onResize = () => handleResize(app, layers, state);
   state.onResize = onResize;
 
   return state;
 }
 
-function updateStory(state, delta) {
-  const { ball, button, tv, tvState } = state;
+function updateThomasLevel9(state, delta) {
+  const { npcs, worldBounds, thomas: thomasState } = state;
+  const thomas = npcs.find((n) => n.type === 'thomas');
+  if (!thomas) return state;
 
-  // Check for the button press only if the TV is off
-  if (!tvState.isOn) {
+  const dt = delta / 1000;
+  let newState = { ...state };
+
+  switch (state.storyState) {
+    case 'TAUNT': {
+      const goalTargetX = worldBounds.maxX - config.wallWidth - 350;
+      thomas.scale.x = 1;
+      thomas.x += thomasState.speed * dt;
+      if (thomas.x >= goalTargetX) {
+        thomas.x = goalTargetX;
+        thomas.scale.x = -1;
+        newState.storyState = 'PLAY_IMPOSSIBLE';
+        newState.playerIsControllable = true;
+        thomas.collisionsEnabled = true; // <<<--- Enable collisions
+      }
+      break;
+    }
+    case 'PLAY_IMPOSSIBLE': {
+      const patrolLeft = worldBounds.maxX - config.wallWidth - 450;
+      const patrolRight = worldBounds.maxX - config.wallWidth - 250;
+      thomas.x += thomasState.speed * 0.5 * thomasState.patrolDirection * dt;
+      if (thomas.x > patrolRight) {
+        thomas.x = patrolRight;
+        thomasState.patrolDirection = -1;
+        thomas.scale.x = -1;
+      } else if (thomas.x < patrolLeft) {
+        thomas.x = patrolLeft;
+        thomasState.patrolDirection = 1;
+        thomas.scale.x = 1;
+      }
+      break;
+    }
+    case 'TV_EVENT': {
+      const sofaTargetX = worldBounds.minX + 450;
+      thomas.scale.x = -1;
+      thomas.x -= thomasState.speed * dt;
+      if (thomas.x <= sofaTargetX) {
+        thomas.x = sofaTargetX;
+        newState.storyState = 'PLAY_POSSIBLE';
+        newState.playerIsControllable = true;
+      }
+      break;
+    }
+    case 'PLAY_POSSIBLE':
+      break;
+    case 'CELEBRATION': {
+      const celebrationTargetX = state.player.x + 100;
+      const dir = Math.sign(celebrationTargetX - thomas.x);
+      if (dir !== 0) {
+        thomas.scale.x = dir;
+        thomas.x += thomasState.speed * dir * dt;
+        if (Math.abs(thomas.x - celebrationTargetX) < 10) {
+          thomas.x = celebrationTargetX;
+        }
+      }
+      break;
+    }
+  }
+
+  return newState;
+}
+
+function updateStory(state) {
+  const { ball, button, goal, storyState, tvOn, npcs } = state;
+  let newState = { ...state };
+
+  if (storyState === 'PLAY_IMPOSSIBLE' && !tvOn) {
     const ballCircle = { x: ball.x, y: ball.y, radius: config.ballRadius };
     const buttonRect = button.colliders[0];
     const absoluteButtonRect = {
@@ -128,56 +210,41 @@ function updateStory(state, delta) {
       height: buttonRect.height,
     };
 
-    const collision = collideCircleWithRectangle(ballCircle, absoluteButtonRect);
-
-    if (collision.collided) {
-      // --- Turn the TV on ---
-      state.tvState.isOn = true;
-
-      // 1. Update button visual
+    if (collideCircleWithRectangle(ballCircle, absoluteButtonRect).collided) {
+      newState.tvOn = true;
       button.buttonOn.visible = true;
       button.buttonOff.visible = false;
+      state.tv.screen.clear().rect(5, -120, 15, 140).fill(0xe0ffff);
 
-      // 2. Update TV screen visual
-      const screenWidth = 15;
-      const screenHeight = 140;
-      const standWidth = 5;
-      const standHeight = 100;
-      tv.screen
-        .clear()
-        .rect(
-          standWidth,
-          -screenHeight - (standHeight - screenHeight) / 2,
-          screenWidth,
-          screenHeight
-        )
-        .fill(0xe0ffff); // Light cyan "on" color
+      newState.storyState = 'TV_EVENT';
+      newState.playerIsControllable = false;
+
+      const thomas = npcs.find((n) => n.type === 'thomas');
+      if (thomas) thomas.collisionsEnabled = false; // <<<--- Disable collisions
     }
   }
-  return state;
+
+  if (storyState === 'PLAY_POSSIBLE' && checkGoal(ball, goal)) {
+    newState.storyState = 'CELEBRATION';
+    newState.playerIsControllable = false;
+  }
+
+  return newState;
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
   const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  const newEventState = updateEvents(state.eventState, script, state, clock);
+  let stateAfterStory = updateStory(stateAfterInput);
+  stateAfterStory = updateThomasLevel9(stateAfterStory, delta);
+
+  const newEventState = updateEvents(stateAfterStory.eventState, script, stateAfterStory, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
-  const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
+  const stateAfterPhysics = updatePhysics(stateAfterStory, delta);
   const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta, layers);
 
-  // --- Story Logic ---
-  const stateAfterStory = updateStory(stateAfterNPCs, delta);
-  // --- End Story Logic ---
-
-  let finalState = updateCamera(stateAfterStory, app, layers);
-
-  // Win condition check
-  const { ball, goal } = finalState;
-  if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level1' };
-  }
-
+  let finalState = updateCamera(stateAfterNPCs, app, layers);
   updateSpeakerEffects({ ...finalState, uiMessage });
   updateSun(finalState);
 

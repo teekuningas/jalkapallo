@@ -516,6 +516,12 @@ export function updateProximityIndicator(ball, isKickable) {
 export function handleInputs(state, inputState, world, delta) {
   let { player, ball, kickIndicator, kickStart, ballVelocity } = state;
 
+  // If player is not controllable, disable movement and kicking.
+  if (state.playerIsControllable === false) {
+    kickIndicator.clear(); // Ensure no visual artifacts remain
+    return { newState: { ...state, kickStart: null } };
+  }
+
   const dt = delta / 1000;
 
   // Player Movement
@@ -924,7 +930,7 @@ export function updatePhysics(state, delta) {
   // Thomas's magic ring collision
   if (state.npcs) {
     for (const npc of state.npcs) {
-      if (npc.type === 'thomas') {
+      if (npc.type === 'thomas' && npc.collisionsEnabled) {
         const ringCenterX = npc.x;
         const ringCenterY = npc.y - npc.bodyHeight / 2;
         const dx = ball.x - ringCenterX;
@@ -1234,11 +1240,24 @@ export function getUIMessageFromEventState(eventState) {
 export function updateEvents(eventState, script, gameState, clock) {
   const newTime = clock.getTime();
   let activeMessage = eventState.activeMessage;
+  let currentScriptItem = null;
 
-  // Find the script item that should be active
-  const currentScriptItem = script.find(
-    (item) => newTime >= item.trigger.time && newTime < item.trigger.time + item.action.duration
+  // Prioritize condition-based triggers
+  const conditionScriptItem = script.find(
+    (item) => item.trigger.type === 'condition' && item.trigger.check(gameState)
   );
+
+  if (conditionScriptItem) {
+    currentScriptItem = conditionScriptItem;
+  } else {
+    // Fallback to time-based triggers if no condition is met
+    currentScriptItem = script.find(
+      (item) =>
+        item.trigger.type === 'time' &&
+        newTime >= item.trigger.time &&
+        newTime < item.trigger.time + item.action.duration
+    );
+  }
 
   if (currentScriptItem) {
     // If there is no active message, or the active message is different from the current script item
