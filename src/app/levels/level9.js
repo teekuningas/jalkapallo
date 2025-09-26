@@ -21,6 +21,11 @@ import {
   updateSun,
   createThomas,
   updateNPCs,
+  createSofa,
+  createTV,
+  createButton,
+  createObstacle,
+  collideCircleWithRectangle,
 } from './level-utils.js';
 
 export const script = [
@@ -51,15 +56,32 @@ export function init(app, layers) {
   });
   thomas.scale.x = -1; // Face left
 
+  // Living room assets
+  const sofa = createSofa(world, { x: worldBounds.minX + 450, y: 0 });
+  const tv = createTV(world, { x: worldBounds.minX + 140, y: -100 });
+  const button = createButton(world, { x: worldBounds.minX + 200, y: -400 });
+
+  const obstacle = createObstacle(
+    world,
+    worldBounds.minX + 950,
+    worldBounds.minX + 1050,
+    150, // Gap at the bottom
+    4000,
+    true
+  );
+
   // Center the action
-  player.x = 45;
-  ball.x = -45;
+  player.x = -45;
+  ball.x = 45;
 
   const state = {
     // Static graphics
     background,
     sun,
     ground,
+    sofa,
+    tv,
+    button,
     // Dynamic entities
     player,
     ball,
@@ -67,7 +89,7 @@ export function init(app, layers) {
     kickIndicator,
     walls,
     goal,
-    obstacles: [],
+    obstacles: [obstacle], // Add the new obstacle here
     npcs: [thomas],
     // State properties
     worldBounds,
@@ -77,6 +99,8 @@ export function init(app, layers) {
     onResize: null, // Placeholder
     eventState: initEventsState(),
     uiMessage: null,
+    storyState: 'taunt',
+    tvState: { isOn: false },
   };
 
   state.characters = [player, sun, thomas];
@@ -90,6 +114,49 @@ export function init(app, layers) {
   return state;
 }
 
+function updateStory(state, delta) {
+  const { ball, button, tv, tvState } = state;
+
+  // Check for the button press only if the TV is off
+  if (!tvState.isOn) {
+    const ballCircle = { x: ball.x, y: ball.y, radius: config.ballRadius };
+    const buttonRect = button.colliders[0];
+    const absoluteButtonRect = {
+      x: button.x + buttonRect.x,
+      y: button.y + buttonRect.y,
+      width: buttonRect.width,
+      height: buttonRect.height,
+    };
+
+    const collision = collideCircleWithRectangle(ballCircle, absoluteButtonRect);
+
+    if (collision.collided) {
+      // --- Turn the TV on ---
+      state.tvState.isOn = true;
+
+      // 1. Update button visual
+      button.buttonOn.visible = true;
+      button.buttonOff.visible = false;
+
+      // 2. Update TV screen visual
+      const screenWidth = 15;
+      const screenHeight = 140;
+      const standWidth = 5;
+      const standHeight = 100;
+      tv.screen
+        .clear()
+        .rect(
+          standWidth,
+          -screenHeight - (standHeight - screenHeight) / 2,
+          screenWidth,
+          screenHeight
+        )
+        .fill(0xe0ffff); // Light cyan "on" color
+    }
+  }
+  return state;
+}
+
 export function update(state, delta, inputState, app, layers, clock) {
   const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
@@ -98,7 +165,12 @@ export function update(state, delta, inputState, app, layers, clock) {
 
   const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
   const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta, layers);
-  let finalState = updateCamera(stateAfterNPCs, app, layers);
+
+  // --- Story Logic ---
+  const stateAfterStory = updateStory(stateAfterNPCs, delta);
+  // --- End Story Logic ---
+
+  let finalState = updateCamera(stateAfterStory, app, layers);
 
   // Win condition check
   const { ball, goal } = finalState;

@@ -72,8 +72,8 @@ export function init(app, layers) {
   });
 
   // Center the action
-  player.x = 45;
-  ball.x = -45;
+  player.x = -45;
+  ball.x = 45;
 
   const state = {
     // Static graphics

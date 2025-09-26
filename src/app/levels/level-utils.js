@@ -650,7 +650,7 @@ function isPlayerKickable(player, ball) {
   return dist < config.kickableDistance;
 }
 
-function collideCircleWithRectangle(circle, rect) {
+export function collideCircleWithRectangle(circle, rect) {
   const closestX = Math.max(rect.x, Math.min(circle.x, rect.x + rect.width));
   const closestY = Math.max(rect.y, Math.min(circle.y, rect.y + rect.height));
 
@@ -1086,6 +1086,96 @@ export function createObstacle(world, leftX, rightX, bottomY, topY, isSolid = fa
   obstacle.isSolid = isSolid;
 
   return obstacle;
+}
+
+export function createSofa(world, position) {
+  const sofa = new Container();
+  sofa.x = position.x;
+  sofa.y = position.y;
+  world.addChild(sofa);
+
+  const backHeight = 120;
+  const backWidth = 40;
+  const seatHeight = 50;
+  const seatWidth = 150;
+
+  const graphics = new Graphics();
+  // Draw the backrest, with its right edge at x=0
+  graphics.rect(-backWidth, -backHeight, backWidth, backHeight).fill(0x5d4037);
+  // Draw the seat, extending left from the backrest
+  graphics.rect(-backWidth - seatWidth, -seatHeight, seatWidth, seatHeight).fill(0x8d6e63);
+
+  sofa.addChild(graphics);
+  // Pivot at the bottom-right corner of the backrest
+  sofa.pivot.set(0, 0);
+
+  return sofa;
+}
+
+export function createTV(world, position) {
+  const tv = new Container();
+  tv.x = position.x;
+  tv.y = position.y;
+  world.addChild(tv);
+
+  const screenWidth = 15; // Thin side view
+  const screenHeight = 140;
+  const standHeight = 100;
+  const standWidth = 5;
+
+  // Stand (thin pole from the wall)
+  const stand = new Graphics();
+  stand.rect(0, -standHeight, standWidth, standHeight).fill(0x555555);
+  tv.addChild(stand);
+
+  // Screen
+  const screen = new Graphics();
+  screen
+    .rect(standWidth, -screenHeight - (standHeight - screenHeight) / 2, screenWidth, screenHeight)
+    .fill(0x111111); // Off-black
+  tv.addChild(screen);
+  tv.screen = screen; // Expose screen for later manipulation
+
+  tv.pivot.set(0, 0); // Pivot at the wall connection point
+
+  return tv;
+}
+
+export function createButton(world, position) {
+  const button = new Container();
+  button.x = position.x;
+  button.y = position.y;
+  world.addChild(button);
+
+  const radius = 30;
+
+  const buttonOff = new Graphics();
+  buttonOff.circle(0, 0, radius).fill(0x660000); // Dark Red for off
+  buttonOff.circle(0, 0, radius - 5).fill(0x440000);
+  button.addChild(buttonOff);
+
+  const buttonOn = new Graphics();
+  buttonOn.circle(0, 0, radius).fill(0x00ff00); // Green for on
+  buttonOn.circle(0, 0, radius - 5).fill(0x00aa00);
+  buttonOn.visible = false;
+  button.addChild(buttonOn);
+
+  button.buttonOn = buttonOn;
+  button.buttonOff = buttonOff;
+  button.isOn = false;
+
+  // Add a non-solid collider for the ball
+  button.colliders = [
+    {
+      x: -radius,
+      y: -radius,
+      width: radius * 2,
+      height: radius * 2,
+    },
+  ];
+  button.isSolid = false; // Player can pass through, but ball will collide
+
+  return button;
 }
 
 export function handleResize(app, layers, state) {
