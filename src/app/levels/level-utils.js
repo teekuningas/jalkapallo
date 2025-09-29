@@ -1,7 +1,7 @@
 import { Container, Graphics, Circle, Text } from 'pixi.js';
 import { config } from '../config.js';
 
-function lerp(start, end, t) {
+export function lerp(start, end, t) {
   return start * (1 - t) + end * t;
 }
 

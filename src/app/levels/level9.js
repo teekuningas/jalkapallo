@@ -26,19 +26,23 @@ import {
   createButton,
   createObstacle,
   collideCircleWithRectangle,
+  lerp,
 } from './level-utils.js';
 
-// The script is now in Finnish and refined.
+function intervalMap(value, in_min, in_max, out_min, out_max) {
+  return ((value - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min;
+}
+
 export const script = [
   {
     id: 'l9-diag-1',
-    trigger: { type: 'condition', check: (s) => s.storyState === 'TAUNT' },
+    trigger: { type: 'time', time: 500 },
     action: { characterName: 'thomas', text: 'Et ikinä tee maalia minua vastaan!', duration: 3000 },
   },
   {
     id: 'l9-diag-3',
     trigger: { type: 'condition', check: (s) => s.storyState === 'TV_EVENT' },
-    action: { characterName: 'thomas', text: 'Vau, onko tuo uusi peli?!', duration: 3000 },
+    action: { characterName: 'thomas', text: 'Hei! Kirby!', duration: 3000 },
   },
   {
     id: 'l9-diag-4',
@@ -48,7 +52,11 @@ export const script = [
   {
     id: 'l9-diag-5',
     trigger: { type: 'condition', check: (s) => s.storyState === 'CELEBRATION' },
-    action: { characterName: 'thomas', text: 'Sait sen tehtyä! Pelataan yhdessä!', duration: 4000 },
+    action: {
+      characterName: 'thomas',
+      text: 'Jee, hieno maali! Voidaanko nyt pelata Kirbyä?',
+      duration: 4000,
+    },
   },
 ];
 
@@ -130,16 +138,17 @@ export function init(app, layers) {
 }
 
 function updateThomasLevel9(state, delta) {
-  const { npcs, worldBounds, thomas: thomasState } = state;
+  const { npcs, worldBounds, thomas: thomasState, player, ball, goal } = state;
   const thomas = npcs.find((n) => n.type === 'thomas');
   if (!thomas) return state;
 
   const dt = delta / 1000;
   let newState = { ...state };
 
+  // --- Main Story State Machine ---
   switch (state.storyState) {
     case 'TAUNT': {
-      const goalTargetX = worldBounds.maxX - config.wallWidth - 350;
+      const goalTargetX = worldBounds.maxX - config.wallWidth - 800;
       thomas.scale.x = 1;
       thomas.x += thomasState.speed * dt;
       if (thomas.x >= goalTargetX) {
@@ -147,27 +156,37 @@ function updateThomasLevel9(state, delta) {
         thomas.scale.x = -1;
         newState.storyState = 'PLAY_IMPOSSIBLE';
         newState.playerIsControllable = true;
-        thomas.collisionsEnabled = true; // <<<--- Enable collisions
+        thomas.collisionsEnabled = true;
       }
       break;
     }
     case 'PLAY_IMPOSSIBLE': {
-      const patrolLeft = worldBounds.maxX - config.wallWidth - 450;
-      const patrolRight = worldBounds.maxX - config.wallWidth - 250;
-      thomas.x += thomasState.speed * 0.5 * thomasState.patrolDirection * dt;
-      if (thomas.x > patrolRight) {
-        thomas.x = patrolRight;
-        thomasState.patrolDirection = -1;
-        thomas.scale.x = -1;
-      } else if (thomas.x < patrolLeft) {
-        thomas.x = patrolLeft;
-        thomasState.patrolDirection = 1;
-        thomas.scale.x = 1;
+      const goalX = goal.x;
+      const rightmostEntityX = Math.max(player.x, ball.x);
+
+      const baseTargetX = (goalX + rightmostEntityX) / 2;
+
+      const dist = Math.abs(goalX - rightmostEntityX);
+      const amplitude = intervalMap(dist, 100, 1500, 10, 150);
+      const clampedAmplitude = Math.max(10, Math.min(150, amplitude));
+
+      const offset = Math.sin(Date.now() / 400) * clampedAmplitude;
+      let finalTargetX = baseTargetX + offset;
+
+      // Clamp the target to prevent going behind the goal
+      finalTargetX = Math.min(finalTargetX, goalX - thomas.bodyWidth / 2);
+
+      thomas.x = lerp(thomas.x, finalTargetX, 0.05);
+
+      // Update facing direction
+      if (Math.abs(rightmostEntityX - thomas.x) > 10) {
+        thomas.scale.x = Math.sign(rightmostEntityX - thomas.x);
       }
+
       break;
     }
     case 'TV_EVENT': {
-      const sofaTargetX = worldBounds.minX + 450;
+      const sofaTargetX = worldBounds.minX + 380;
       thomas.scale.x = -1;
       thomas.x -= thomasState.speed * dt;
       if (thomas.x <= sofaTargetX) {
@@ -178,6 +197,7 @@ function updateThomasLevel9(state, delta) {
       break;
     }
     case 'PLAY_POSSIBLE':
+      // Thomas stays on the sofa
       break;
     case 'CELEBRATION': {
       const celebrationTargetX = state.player.x + 100;
