@@ -347,7 +347,7 @@ function updateCelebration(state, delta, layers, app) {
 
   // Make the sun grow
   if (sun) {
-    const targetScale = 2.0;
+    const targetScale = 3.0;
     sun.scale.set(lerp(sun.scale.x, targetScale, 0.005));
   }
 
@@ -364,7 +364,7 @@ function updateCelebration(state, delta, layers, app) {
 
   if (state.theEndText) {
     state.theEndText.x = player.x;
-    state.theEndText.y = -300;
+    state.theEndText.y = -230;
     state.theEndText.alpha = Math.min(1, state.theEndText.alpha + dt * 0.5);
   }
 
