@@ -66,12 +66,12 @@ canvas {
 
 #story-message {
   position: absolute;
-  top: 35%;
+  top: clamp(50px, 15vh, 150px);
   left: 50%;
   transform: translateX(-50%);
   color: white;
   font-family: Arial, sans-serif;
-  font-size: 27px;
+  font-size: clamp(1.1rem, 3vw, 1.7rem);
   text-align: center;
   z-index: 100;
   pointer-events: none;
@@ -93,7 +93,7 @@ canvas {
 .speech-bubble p {
   margin: 0;
   font-family: Arial, sans-serif;
-  font-size: 23px;
+  font-size: clamp(1rem, 2.5vw, 1.5rem);
   color: black;
 }
 

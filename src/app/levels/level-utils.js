@@ -437,18 +437,6 @@ export function createBall(world) {
   return ball;
 }
 
-export function createLevelText(world, textContent) {
-  const text = new Text({
-    text: textContent,
-    style: { fontFamily: 'Arial', fontSize: 54, fill: 0xffffff, align: 'center' },
-  });
-  text.x = 400;
-  text.y = -200;
-  text.anchor.set(0.5);
-  world.addChild(text);
-  return text;
-}
-
 export function createGroundMarkers(world, worldBounds, hasWalls) {
   const groundMarkers = new Graphics();
   const stripeSpacing = 200;

@@ -35,7 +35,6 @@ import {
   createFireworks,
   createConfetti,
   updateFireworksAndConfetti,
-  createLevelText,
   handleThomasRingCollision,
   handleTherianBallCollision,
 } from './level-utils.js';
@@ -92,6 +91,11 @@ export const script = [
         delay: 500,
       },
     ],
+  },
+  {
+    id: 'l9-the-end',
+    trigger: { type: 'condition', check: (s) => s.celebration.timer > 20 },
+    action: { text: 'LOPPU', duration: 10000 },
   },
 ];
 
@@ -173,7 +177,6 @@ export function init(app, layers) {
     },
     fireworks: createFireworks(world),
     confetti: createConfetti(world),
-    theEndText: null,
   };
 
   state.characters = [player, sun, thomas, therian, electric];
@@ -354,31 +357,12 @@ function updateCelebration(state, delta, layers, app) {
   // Handle fireworks and confetti
   updateFireworksAndConfetti(state, delta, layers, app);
 
-  // Handle "THE END" text
-  const endTime = 10; // seconds
-  if (state.celebration.timer > endTime && !state.theEndText) {
-    const text = createLevelText(world, 'LOPPU');
-    text.alpha = 0;
-    state.theEndText = text;
-  }
-
-  if (state.theEndText) {
-    state.theEndText.x = player.x;
-    state.theEndText.y = -230;
-    state.theEndText.alpha = Math.min(1, state.theEndText.alpha + dt * 0.5);
-  }
-
   return state;
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
   const dt = delta / 1000;
-  let stateAfterInput = state;
-  // Only process inputs if the game has not ended
-  if (!state.theEndText) {
-    const { newState } = handleInputs(state, inputState, layers.world, delta);
-    stateAfterInput = newState;
-  }
+  let { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
   let stateAfterStory = updateStory(stateAfterInput);
 
