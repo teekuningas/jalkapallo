@@ -70,11 +70,11 @@ export const script = [
   },
   {
     id: 'sun-fact-1',
-    trigger: { type: 'time', time: 25000 },
+    trigger: { type: 'time', time: 28000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiesitkö, että maailman suurin jalkapallostadion on Pohjois-Koreassa? Sinne mahtuu 114 000 ihmistä.',
+      text: 'Tiesitkö muuten, että maailman suurin jalkapallostadion on Pohjois-Koreassa? Sinne mahtuu 114 000 ihmistä.',
       duration: 5000,
     },
   },

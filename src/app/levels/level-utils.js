@@ -61,6 +61,7 @@ export function createGround(app, staticLayer) {
 
 export function createPlayer(world, characterConfig) {
   const player = new Container();
+  player.zIndex = 1;
   player.x = 0;
   player.y = 0; // groundLevelY is 0
   world.addChild(player);
@@ -135,6 +136,7 @@ export function createPlayer(world, characterConfig) {
 
 export function createTherian(world, characterConfig, initialPosition) {
   const therian = new Container();
+  therian.zIndex = 0;
   therian.x = initialPosition.x || 0;
   therian.y = initialPosition.y || -1000; // Flying height
   world.addChild(therian);
@@ -261,6 +263,7 @@ export function createTherian(world, characterConfig, initialPosition) {
 
 export function createElectric(world, characterConfig, initialPosition) {
   const electric = new Container();
+  electric.zIndex = 0;
   electric.x = initialPosition.x || 0;
   electric.y = initialPosition.y || 0;
   world.addChild(electric);
@@ -337,6 +340,7 @@ export function createElectric(world, characterConfig, initialPosition) {
 
 export function createThomas(world, characterConfig, initialPosition) {
   const thomas = new Container();
+  thomas.zIndex = 0;
   thomas.x = initialPosition.x || 0;
   thomas.y = initialPosition.y || 0;
   world.addChild(thomas);
@@ -420,6 +424,7 @@ export function createThomas(world, characterConfig, initialPosition) {
 
 export function createBall(world) {
   const ball = new Graphics();
+  ball.zIndex = 1;
   ball.circle(0, 0, config.ballRadius).fill(config.colors.ball);
   ball.x = 0;
   ball.y = 0 - config.ballRadius; // groundLevelY is 0
@@ -867,108 +872,102 @@ export function updatePhysics(state, delta) {
     }
   }
 
-  // NPC collision
-  if (state.npcs) {
-    const ballCircle = { x: ball.x, y: ball.y, radius: config.ballRadius };
-
-    for (const npc of state.npcs) {
-      if (npc.type === 'therian' && npc.colliderRect) {
-        const rect = npc.colliderRect;
-
-        // Calculate the world-space corners of the collider rect based on npc's transform
-        const corner1X = npc.x + (rect.x - npc.pivot.x) * npc.scale.x;
-        const corner1Y = npc.y + (rect.y - npc.pivot.y) * npc.scale.y;
-        const corner2X = npc.x + (rect.x + rect.width - npc.pivot.x) * npc.scale.x;
-        const corner2Y = npc.y + (rect.y + rect.height - npc.pivot.y) * npc.scale.y;
-
-        const absoluteRect = {
-          x: Math.min(corner1X, corner2X),
-          y: Math.min(corner1Y, corner2Y),
-          width: rect.width * Math.abs(npc.scale.x),
-          height: rect.height * Math.abs(npc.scale.y),
-        };
-
-        const collision = collideCircleWithRectangle(ballCircle, absoluteRect);
-
-        if (collision.collided) {
-          // Resolve overlap
-          ball.x += collision.normalX * collision.overlap;
-          ball.y += collision.normalY * collision.overlap;
-
-          // Calculate relative velocity
-          const npcVelocity = { x: npc.speed * npc.direction, y: 0 };
-          const relativeVelocity = {
-            x: ballVelocity.x - npcVelocity.x,
-            y: ballVelocity.y - npcVelocity.y,
-          };
-
-          // Check if objects are moving towards each other
-          const velocityAlongNormal =
-            relativeVelocity.x * collision.normalX + relativeVelocity.y * collision.normalY;
-
-          // Only bounce if they are moving towards each other
-          if (velocityAlongNormal < 0) {
-            const dotProduct =
-              ballVelocity.x * collision.normalX + ballVelocity.y * collision.normalY;
-            ballVelocity.x -= 2 * dotProduct * collision.normalX;
-            ballVelocity.y -= 2 * dotProduct * collision.normalY;
-
-            ballVelocity.x *= -config.ballBounce;
-            ballVelocity.y *= -config.ballBounce;
-
-            // Trigger kick animation
-            if (!npc.kickAnimation.active) {
-              npc.kickAnimation.active = true;
-              npc.kickAnimation.timer = npc.kickAnimation.duration;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Thomas's magic ring collision
-  if (state.npcs) {
-    for (const npc of state.npcs) {
-      if (npc.type === 'thomas' && npc.collisionsEnabled) {
-        const ringCenterX = npc.x;
-        const ringCenterY = npc.y - npc.bodyHeight / 2;
-        const dx = ball.x - ringCenterX;
-        const dy = ball.y - ringCenterY;
-        const distance = Math.hypot(dx, dy);
-
-        if (distance < npc.ringRadius + config.ballRadius) {
-          // Collision detected
-          npc.magicRing.visible = true;
-          npc.magicRing.animation.active = true;
-          npc.magicRing.animation.timer = npc.magicRing.animation.duration;
-
-          const overlap = npc.ringRadius + config.ballRadius - distance;
-          const normalX = distance === 0 ? 1 : dx / distance;
-          const normalY = distance === 0 ? 0 : dy / distance;
-
-          // Calculate velocity along normal
-          const velocityAlongNormal = ballVelocity.x * normalX + ballVelocity.y * normalY;
-
-          // Only bounce if moving towards the obstacle
-          if (velocityAlongNormal < 0) {
-            // Positional correction to prevent sinking
-            ball.x += normalX * overlap;
-            ball.y += normalY * overlap;
-
-            // Reflect ball's velocity
-            ballVelocity.x -= 2 * velocityAlongNormal * normalX;
-            ballVelocity.y -= 2 * velocityAlongNormal * normalY;
-
-            ballVelocity.x *= -config.ballBounce;
-            ballVelocity.y *= -config.ballBounce;
-          }
-        }
-      }
-    }
-  }
-
   return { ...state, ball, ballVelocity };
+}
+
+export function handleTherianBallCollision(therian, ball, ballVelocity) {
+  if (therian.colliderRect) {
+    const ballCircle = { x: ball.x, y: ball.y, radius: config.ballRadius };
+    const rect = therian.colliderRect;
+
+    // Calculate the world-space corners of the collider rect based on therian's transform
+    const corner1X = therian.x + (rect.x - therian.pivot.x) * therian.scale.x;
+    const corner1Y = therian.y + (rect.y - therian.pivot.y) * therian.scale.y;
+    const corner2X = therian.x + (rect.x + rect.width - therian.pivot.x) * therian.scale.x;
+    const corner2Y = therian.y + (rect.y + rect.height - therian.pivot.y) * therian.scale.y;
+
+    const absoluteRect = {
+      x: Math.min(corner1X, corner2X),
+      y: Math.min(corner1Y, corner2Y),
+      width: rect.width * Math.abs(therian.scale.x),
+      height: rect.height * Math.abs(therian.scale.y),
+    };
+
+    const collision = collideCircleWithRectangle(ballCircle, absoluteRect);
+
+    if (collision.collided) {
+      // Resolve overlap
+      ball.x += collision.normalX * collision.overlap;
+      ball.y += collision.normalY * collision.overlap;
+
+      // Calculate relative velocity
+      const npcVelocity = { x: therian.speed * therian.direction, y: 0 };
+      const relativeVelocity = {
+        x: ballVelocity.x - npcVelocity.x,
+        y: ballVelocity.y - npcVelocity.y,
+      };
+
+      // Check if objects are moving towards each other
+      const velocityAlongNormal =
+        relativeVelocity.x * collision.normalX + relativeVelocity.y * collision.normalY;
+
+      // Only bounce if they are moving towards each other
+      if (velocityAlongNormal < 0) {
+        const dotProduct = ballVelocity.x * collision.normalX + ballVelocity.y * collision.normalY;
+        ballVelocity.x -= 2 * dotProduct * collision.normalX;
+        ballVelocity.y -= 2 * dotProduct * collision.normalY;
+
+        ballVelocity.x *= -config.ballBounce;
+        ballVelocity.y *= -config.ballBounce;
+
+        // Trigger kick animation
+        if (!therian.kickAnimation.active) {
+          therian.kickAnimation.active = true;
+          therian.kickAnimation.timer = therian.kickAnimation.duration;
+        }
+      }
+    }
+  }
+  return { ball, ballVelocity };
+}
+
+export function handleThomasRingCollision(thomas, ball, ballVelocity) {
+  if (thomas.collisionsEnabled) {
+    const ringCenterX = thomas.x;
+    const ringCenterY = thomas.y - thomas.bodyHeight / 2;
+    const dx = ball.x - ringCenterX;
+    const dy = ball.y - ringCenterY;
+    const distance = Math.hypot(dx, dy);
+
+    if (distance < thomas.ringRadius + config.ballRadius) {
+      // Collision detected
+      thomas.magicRing.visible = true;
+      thomas.magicRing.animation.active = true;
+      thomas.magicRing.animation.timer = thomas.magicRing.animation.duration;
+
+      const overlap = thomas.ringRadius + config.ballRadius - distance;
+      const normalX = distance === 0 ? 1 : dx / distance;
+      const normalY = distance === 0 ? 0 : dy / distance;
+
+      // Calculate velocity along normal
+      const velocityAlongNormal = ballVelocity.x * normalX + ballVelocity.y * normalY;
+
+      // Only bounce if moving towards the obstacle
+      if (velocityAlongNormal < 0) {
+        // Positional correction to prevent sinking
+        ball.x += normalX * overlap;
+        ball.y += normalY * overlap;
+
+        // Reflect ball's velocity
+        ballVelocity.x -= 2 * velocityAlongNormal * normalX;
+        ballVelocity.y -= 2 * velocityAlongNormal * normalY;
+
+        ballVelocity.x *= -config.ballBounce;
+        ballVelocity.y *= -config.ballBounce;
+      }
+    }
+  }
+  return { ball, ballVelocity };
 }
 
 export function updateCamera(state, app, layers) {
@@ -1096,6 +1095,7 @@ export function createObstacle(world, leftX, rightX, bottomY, topY, isSolid = fa
 
 export function createSofa(world, position) {
   const sofa = new Container();
+  sofa.zIndex = 0;
   sofa.x = position.x;
   sofa.y = position.y;
   world.addChild(sofa);
@@ -1227,6 +1227,8 @@ export function initEventsState() {
   return {
     time: 0,
     activeMessage: null,
+    processedConditionalEvents: [],
+    activeSequence: null, // { id, actions, currentIndex, nextActionTime }
   };
 }
 
@@ -1239,43 +1241,94 @@ export function getUIMessageFromEventState(eventState) {
 
 export function updateEvents(eventState, script, gameState, clock) {
   const newTime = clock.getTime();
-  let activeMessage = eventState.activeMessage;
-  let currentScriptItem = null;
+  let { activeMessage, processedConditionalEvents, activeSequence } = eventState;
 
-  // Prioritize condition-based triggers
-  const conditionScriptItem = script.find(
-    (item) => item.trigger.type === 'condition' && item.trigger.check(gameState)
-  );
-
-  if (conditionScriptItem) {
-    currentScriptItem = conditionScriptItem;
-  } else {
-    // Fallback to time-based triggers if no condition is met
-    currentScriptItem = script.find(
-      (item) =>
-        item.trigger.type === 'time' &&
-        newTime >= item.trigger.time &&
-        newTime < item.trigger.time + item.action.duration
-    );
+  // 1. Handle expiration of the currently active message.
+  if (activeMessage && newTime - activeMessage.startTime >= activeMessage.duration) {
+    // If the message was a single conditional action, mark it as processed.
+    if (activeMessage.isSingleConditional) {
+      processedConditionalEvents = [...processedConditionalEvents, activeMessage.id];
+    }
+    activeMessage = null;
   }
 
-  if (currentScriptItem) {
-    // If there is no active message, or the active message is different from the current script item
-    if (!activeMessage || activeMessage.id !== currentScriptItem.id) {
+  // 2. If a sequence is active and no message is displayed, try to trigger the next action in the sequence.
+  if (activeSequence && !activeMessage) {
+    if (newTime >= activeSequence.nextActionTime) {
+      const action = activeSequence.actions[activeSequence.currentIndex];
       activeMessage = {
-        ...currentScriptItem.action,
-        id: currentScriptItem.id,
+        ...action,
+        id: activeSequence.id,
         startTime: newTime,
       };
+
+      activeSequence.currentIndex++;
+      if (activeSequence.currentIndex >= activeSequence.actions.length) {
+        // This was the last action. Mark the whole sequence as processed and clear it.
+        processedConditionalEvents = [...processedConditionalEvents, activeSequence.id];
+        activeSequence = null;
+      } else {
+        // Schedule the next action.
+        const nextAction = activeSequence.actions[activeSequence.currentIndex];
+        activeSequence.nextActionTime = newTime + action.duration + (nextAction.delay || 0);
+      }
     }
-  } else {
-    activeMessage = null;
+  }
+
+  // 3. If nothing is happening (no active message, no waiting sequence), look for a new event to start.
+  if (!activeMessage && !activeSequence) {
+    // Priority 1: Conditional triggers
+    const conditionScriptItem = script.find(
+      (item) =>
+        item.trigger.type === 'condition' &&
+        item.trigger.check(gameState) &&
+        !processedConditionalEvents.includes(item.id)
+    );
+
+    if (conditionScriptItem) {
+      if (conditionScriptItem.actions) {
+        // It's a sequence. Initialize it.
+        const firstAction = conditionScriptItem.actions[0];
+        activeSequence = {
+          id: conditionScriptItem.id,
+          actions: conditionScriptItem.actions,
+          currentIndex: 0,
+          nextActionTime: newTime + (firstAction.delay || 0),
+        };
+        // The logic in step 2 will pick this up in the next tick(s).
+      } else {
+        // It's a single action. Display it immediately.
+        activeMessage = {
+          ...conditionScriptItem.action,
+          id: conditionScriptItem.id,
+          startTime: newTime,
+          isSingleConditional: true, // Flag to mark for processing on expiration
+        };
+      }
+    } else {
+      // Priority 2: Time-based triggers
+      const timeScriptItem = script.find(
+        (item) =>
+          item.trigger.type === 'time' &&
+          newTime >= item.trigger.time &&
+          newTime < item.trigger.time + item.action.duration
+      );
+      if (timeScriptItem) {
+        activeMessage = {
+          ...timeScriptItem.action,
+          id: timeScriptItem.id,
+          startTime: newTime,
+        };
+      }
+    }
   }
 
   return {
     ...eventState,
     time: newTime,
     activeMessage,
+    processedConditionalEvents,
+    activeSequence,
   };
 }
 
@@ -1303,25 +1356,137 @@ export function updateSun(state) {
   if (state.sun && state.sun.halo) {
     state.sun.halo.rotation += 0.003;
   }
+  if (state.sun.celebrating) {
+    state.sun.halo.alpha = 0.8 + Math.sin(performance.now() / 150) * 0.2;
+  }
 }
 
-function updateTherian(therian, state, dt, layers) {
-  const { worldBounds } = state;
-  therian.x += therian.speed * therian.direction * dt;
+export function createFireworks(world) {
+  const fireworksContainer = new Container();
+  world.addChild(fireworksContainer);
+  return {
+    container: fireworksContainer,
+    particles: [],
+    spawnTimer: 0,
+  };
+}
 
-  const leftBoundary = worldBounds.minX + therian.bodyWidth / 2 + 100;
-  const rightBoundary = worldBounds.maxX - therian.bodyWidth / 2 - 100;
+export function createConfetti(world) {
+  const confettiContainer = new Container();
+  world.addChild(confettiContainer);
+  return {
+    container: confettiContainer,
+    particles: [],
+    spawnTimer: 0,
+  };
+}
 
-  if (therian.x > rightBoundary) {
-    therian.x = rightBoundary;
-    therian.direction = -1;
-    therian.scale.x = -1;
-  } else if (therian.x < leftBoundary) {
-    therian.x = leftBoundary;
-    therian.direction = 1;
-    therian.scale.x = 1;
+function spawnFirework(fireworks, world, app) {
+  const numParticles = 50;
+  const explosionColor = Math.random() * 0xffffff;
+  const explosionX = Math.random() * app.screen.width;
+  const explosionY = Math.random() * (app.screen.height / 2);
+
+  for (let i = 0; i < numParticles; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = Math.random() * 500 + 100;
+    const particle = new Graphics();
+    const worldPos = world.toLocal({ x: explosionX, y: explosionY });
+
+    particle.x = worldPos.x;
+    particle.y = worldPos.y;
+    particle.vx = Math.cos(angle) * speed;
+    particle.vy = Math.sin(angle) * speed;
+    particle.alpha = 1;
+    particle.lifetime = Math.random() * 1 + 0.5; // in seconds
+    particle.beginFill(explosionColor);
+    particle.drawCircle(0, 0, 3);
+    particle.endFill();
+
+    fireworks.particles.push(particle);
+    fireworks.container.addChild(particle);
+  }
+}
+
+function spawnConfetti(confetti, world, app) {
+  const numParticles = 10;
+  const colors = [0xff0000, 0x00ff00, 0x0000ff, 0xffff00, 0xff00ff, 0x00ffff];
+
+  for (let i = 0; i < numParticles; i++) {
+    const particle = new Graphics();
+    const worldX = Math.random() * app.screen.width;
+    const worldY = -50;
+    const worldPos = world.toLocal({ x: worldX, y: worldY });
+
+    particle.x = worldPos.x;
+    particle.y = worldPos.y;
+    particle.vx = Math.random() * 200 - 100;
+    particle.vy = Math.random() * 100 + 50;
+    particle.rotationSpeed = Math.random() * 5 - 2.5;
+    particle.alpha = 1;
+    particle.lifetime = Math.random() * 3 + 2; // in seconds
+
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    particle.beginFill(color);
+    particle.drawRect(-5, -10, 10, 20);
+    particle.endFill();
+
+    confetti.particles.push(particle);
+    confetti.container.addChild(particle);
+  }
+}
+
+export function updateFireworksAndConfetti(state, delta, layers, app) {
+  const { fireworks, confetti } = state;
+  const { world } = layers;
+  const dt = delta / 1000;
+
+  // --- Update Fireworks ---
+  fireworks.spawnTimer -= dt;
+  if (fireworks.spawnTimer <= 0) {
+    spawnFirework(fireworks, world, app);
+    fireworks.spawnTimer = Math.random() * 1.5 + 0.5; // Spawn every 0.5-2 seconds
   }
 
+  for (let i = fireworks.particles.length - 1; i >= 0; i--) {
+    const p = fireworks.particles[i];
+    p.lifetime -= dt;
+
+    if (p.lifetime <= 0) {
+      fireworks.container.removeChild(p);
+      fireworks.particles.splice(i, 1);
+    } else {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.vy += config.gravity * dt * 0.5; // Less gravity for a floaty effect
+      p.alpha = p.lifetime;
+    }
+  }
+
+  // --- Update Confetti ---
+  confetti.spawnTimer -= dt;
+  if (confetti.spawnTimer <= 0) {
+    spawnConfetti(confetti, world, app);
+    confetti.spawnTimer = 0.2;
+  }
+
+  for (let i = confetti.particles.length - 1; i >= 0; i--) {
+    const p = confetti.particles[i];
+    p.lifetime -= dt;
+
+    if (p.lifetime <= 0) {
+      confetti.container.removeChild(p);
+      confetti.particles.splice(i, 1);
+    } else {
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+      p.rotation += p.rotationSpeed * dt;
+      p.alpha = p.lifetime / 3; // Fade out over the last 3 seconds
+    }
+  }
+}
+
+export function updateTherianVisuals(therian, dt) {
   // Cloak animation
   const time = Date.now() / 200;
   const cloak = therian.cloak;
@@ -1346,7 +1511,25 @@ function updateTherian(therian, state, dt, layers) {
   }
 }
 
-function updateElectric(electric, state, dt, layers) {
+export function updateTherianAI(therian, state, dt) {
+  const { worldBounds } = state;
+  therian.x += therian.speed * therian.direction * dt;
+
+  const leftBoundary = worldBounds.minX + therian.bodyWidth / 2 + 100;
+  const rightBoundary = worldBounds.maxX - therian.bodyWidth / 2 - 100;
+
+  if (therian.x > rightBoundary) {
+    therian.x = rightBoundary;
+    therian.direction = -1;
+    therian.scale.x = -1;
+  } else if (therian.x < leftBoundary) {
+    therian.x = leftBoundary;
+    therian.direction = 1;
+    therian.scale.x = 1;
+  }
+}
+
+export function updateElectric(electric, state, dt, layers) {
   // Update timers
   if (electric.kickCooldown > 0) {
     electric.kickCooldown -= dt * 1000;
@@ -1399,7 +1582,7 @@ function updateElectric(electric, state, dt, layers) {
   }
 }
 
-function updateThomas(thomas, state, dt) {
+export function updateThomas(thomas, state, dt) {
   if (thomas.magicRing.animation.active) {
     thomas.magicRing.animation.timer -= dt * 1000;
     const progress = thomas.magicRing.animation.timer / thomas.magicRing.animation.duration;
@@ -1410,26 +1593,4 @@ function updateThomas(thomas, state, dt) {
       thomas.magicRing.visible = false;
     }
   }
-}
-
-const npcUpdaters = {
-  therian: updateTherian,
-  electric: updateElectric,
-  thomas: updateThomas,
-};
-
-export function updateNPCs(state, delta, layers) {
-  if (!state.npcs) return state;
-
-  const dt = delta / 1000;
-
-  const newNpcs = state.npcs.map((npc) => {
-    const updater = npcUpdaters[npc.type];
-    if (updater) {
-      updater(npc, state, dt, layers);
-    }
-    return npc;
-  });
-
-  return { ...state, npcs: newNpcs };
 }

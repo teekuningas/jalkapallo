@@ -45,7 +45,6 @@ export const config = {
 export const characters = {
   jake: {
     name: 'Jake',
-    // unified light‐green for both bubble border and character glow
     color: '#90EE90',
     speechBubbleDirection: 'down',
     glowColor: 0x90ee90,
@@ -53,7 +52,6 @@ export const characters = {
 
   sun: {
     name: 'Sun',
-    // unified yellow–orange for both bubble border and character glow
     color: '#FFFF00',
     speechBubbleDirection: 'right',
     glowColor: 0xffff00,
@@ -76,7 +74,7 @@ export const characters = {
   thomas: {
     name: 'Thomas',
     color: '#4169E1',
-    speechBubbleDirection: 'down',
+    speechBubbleDirection: 'right',
     glowColor: 0x4169e1,
   },
 };

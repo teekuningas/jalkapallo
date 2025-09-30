@@ -25,6 +25,7 @@ window.addEventListener('DOMContentLoaded', () => {
       app.stage.addChild(staticLayer);
 
       const world = new Container();
+      world.sortableChildren = true;
       world.zIndex = 1;
       app.stage.addChild(world);
 

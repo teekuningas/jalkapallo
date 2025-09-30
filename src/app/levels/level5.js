@@ -20,7 +20,9 @@ import {
   updateSpeakerEffects,
   updateSun,
   createTherian,
-  updateNPCs,
+  updateTherianAI,
+  updateTherianVisuals,
+  handleTherianBallCollision,
   createObstacle,
 } from './level-utils.js';
 
@@ -52,11 +54,11 @@ export const script = [
   },
   {
     id: 'sun-fact-1',
-    trigger: { type: 'time', time: 17000 },
+    trigger: { type: 'time', time: 20000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiesittekö, että ensimmäisessä maailmansodassa jouluna 1914 saksalaiset ja brittiläiset sotilaat pitivät tulitauon ja pelasivat jalkapalloa?',
+      text: 'Tiesittekö muuten, että ensimmäisessä maailmansodassa jouluna 1914 saksalaiset ja brittiläiset sotilaat pitivät tulitauon ja pelasivat jalkapalloa?',
       duration: 5000,
     },
   },
@@ -79,7 +81,7 @@ export function init(app, layers) {
   const goal = createGoal(world, worldBounds.maxX - config.wallWidth - 175, 0, 150, 150, 'left');
   const therian = createTherian(world, characters.therian, { y: -500 });
   const obstacle1 = createObstacle(world, 650, 700, 0, 200, true);
-  const obstacle2 = createObstacle(world, 900, 1900, 150, 200);
+  const obstacle2 = createObstacle(world, 950, 1900, 150, 200);
 
   // Center the action
   player.x = -45;
@@ -98,7 +100,7 @@ export function init(app, layers) {
     walls,
     goal,
     obstacles: [obstacle1, obstacle2],
-    npcs: [therian],
+    therian,
     // State properties
     worldBounds,
     kickStart: null,
@@ -126,9 +128,23 @@ export function update(state, delta, inputState, app, layers, clock) {
   const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
-  const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
-  const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta, layers);
-  let finalState = updateCamera(stateAfterNPCs, app, layers);
+  const dt = delta / 1000;
+  let stateAfterPhysics = updatePhysics(stateAfterInput, delta);
+
+  // Update NPCs
+  if (stateAfterPhysics.therian) {
+    updateTherianAI(stateAfterPhysics.therian, stateAfterPhysics, dt);
+    updateTherianVisuals(stateAfterPhysics.therian, dt);
+    const { ball, ballVelocity } = handleTherianBallCollision(
+      stateAfterPhysics.therian,
+      stateAfterPhysics.ball,
+      stateAfterPhysics.ballVelocity
+    );
+    stateAfterPhysics.ball = ball;
+    stateAfterPhysics.ballVelocity = ballVelocity;
+  }
+
+  let finalState = updateCamera(stateAfterPhysics, app, layers);
 
   // Win condition check
   const { ball, goal } = finalState;
