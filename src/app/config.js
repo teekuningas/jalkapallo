@@ -18,6 +18,8 @@ export const config = {
     playerSocks: 0xffff00, // yellow
     electricShirt: 0x0000ff, // blue
     electricPants: 0x000000, // black
+    thomasShirt: 0xffff00, // yellow
+    thomasPants: 0x00bf00, // medium green
     ball: 0xffffff,
     ballBorder: 0x0000ff,
     kickIndicator: 0xffffff,
@@ -43,7 +45,6 @@ export const config = {
 export const characters = {
   jake: {
     name: 'Jake',
-    // unified light‐green for both bubble border and character glow
     color: '#90EE90',
     speechBubbleDirection: 'down',
     glowColor: 0x90ee90,
@@ -51,7 +52,6 @@ export const characters = {
 
   sun: {
     name: 'Sun',
-    // unified yellow–orange for both bubble border and character glow
     color: '#FFFF00',
     speechBubbleDirection: 'right',
     glowColor: 0xffff00,
@@ -69,5 +69,12 @@ export const characters = {
     color: '#0000FF',
     speechBubbleDirection: 'down',
     glowColor: 0x0000ff,
+  },
+
+  thomas: {
+    name: 'Thomas',
+    color: '#4169E1',
+    speechBubbleDirection: 'right',
+    glowColor: 0x4169e1,
   },
 };

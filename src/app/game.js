@@ -6,6 +6,7 @@ import * as level5 from './levels/level5.js';
 import * as level6 from './levels/level6.js';
 import * as level7 from './levels/level7.js';
 import * as level8 from './levels/level8.js';
+import * as level9 from './levels/level9.js';
 import { characters } from './config.js';
 
 function renderMessage(message, state, layers) {
@@ -58,6 +59,7 @@ export function startGame(app, inputState, layers, clock) {
     level6,
     level7,
     level8,
+    level9,
   };
   let currentLevelName = null;
   let levelState = null;
@@ -111,7 +113,7 @@ export function startGame(app, inputState, layers, clock) {
     }
   });
 
-  changeLevel('level1');
+  changeLevel('level9');
 
   return {
     pause: () => clock.pause(),

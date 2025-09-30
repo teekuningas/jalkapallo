@@ -50,11 +50,11 @@ export const script = [
   },
   {
     id: 'sun-fact-1',
-    trigger: { type: 'time', time: 17000 },
+    trigger: { type: 'time', time: 20000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiesittekö, että jalkapallo keksittiin Kiinassa yli 2000 vuotta sitten? Sitä kutsuttiin nimellä Cuju.',
+      text: 'Tiesittekö muuten, että jalkapallo keksittiin Kiinassa yli 2000 vuotta sitten? Sitä kutsuttiin nimellä Cuju.',
       duration: 5000,
     },
   },

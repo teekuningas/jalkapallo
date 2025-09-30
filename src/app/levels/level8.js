@@ -21,7 +21,7 @@ import {
   updateSpeakerEffects,
   updateSun,
   createElectric,
-  updateNPCs,
+  updateElectric,
 } from './level-utils.js';
 
 export const script = [
@@ -42,7 +42,7 @@ export const script = [
   },
   {
     id: 'sun-fact-1',
-    trigger: { type: 'time', time: 13000 },
+    trigger: { type: 'time', time: 18000 },
     action: {
       type: 'showText',
       characterName: 'sun',
@@ -81,8 +81,8 @@ export function init(app, layers) {
   });
 
   // Center the action
-  player.x = 45;
-  ball.x = -45;
+  player.x = -45;
+  ball.x = 45;
 
   const state = {
     // Static graphics
@@ -107,7 +107,7 @@ export function init(app, layers) {
       obstacle8,
       obstacle9,
     ],
-    npcs: [electric],
+    electric,
     // State properties
     worldBounds,
     kickStart: null,
@@ -130,19 +130,25 @@ export function init(app, layers) {
 }
 
 export function update(state, delta, inputState, app, layers, clock) {
+  const dt = delta / 1000;
   const { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
   const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
-  const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
-  const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta, layers);
-  let finalState = updateCamera(stateAfterNPCs, app, layers);
+  let stateAfterPhysics = updatePhysics(stateAfterInput, delta);
+
+  // Explicitly update the electric NPC
+  if (stateAfterPhysics.electric) {
+    updateElectric(stateAfterPhysics.electric, stateAfterPhysics, dt, layers);
+  }
+
+  let finalState = updateCamera(stateAfterPhysics, app, layers);
 
   // Win condition check
   const { ball, goal } = finalState;
   if (checkGoal(ball, goal) && !finalState.nextLevel) {
-    finalState = { ...finalState, nextLevel: 'level1' };
+    finalState = { ...finalState, nextLevel: 'level9' };
   }
 
   updateSpeakerEffects({ ...finalState, uiMessage });

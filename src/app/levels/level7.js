@@ -21,7 +21,7 @@ import {
   updateSpeakerEffects,
   updateSun,
   createElectric,
-  updateNPCs,
+  updateElectric,
 } from './level-utils.js';
 
 export const script = [
@@ -42,11 +42,11 @@ export const script = [
   },
   {
     id: 'sun-fact-1',
-    trigger: { type: 'time', time: 13000 },
+    trigger: { type: 'time', time: 20000 },
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiesittekö, että jalkapalloa on pelattu kuussa? Astronautit pelasivat sitä Apollo 14 -lennolla.',
+      text: 'Tiesittekö muuten, että jalkapalloa on pelattu kuussa? Astronautit pelasivat sitä Apollo 14 -lennolla.',
       duration: 5000,
     },
   },
@@ -72,8 +72,8 @@ export function init(app, layers) {
   });
 
   // Center the action
-  player.x = 45;
-  ball.x = -45;
+  player.x = -45;
+  ball.x = 45;
 
   const state = {
     // Static graphics
@@ -88,7 +88,7 @@ export function init(app, layers) {
     walls,
     goal,
     obstacles: [],
-    npcs: [electric],
+    electric,
     // State properties
     worldBounds,
     kickStart: null,
@@ -116,9 +116,15 @@ export function update(state, delta, inputState, app, layers, clock) {
   const newEventState = updateEvents(state.eventState, script, state, clock);
   const uiMessage = getUIMessageFromEventState(newEventState);
 
-  const stateAfterPhysics = updatePhysics(stateAfterInput, delta);
-  const stateAfterNPCs = updateNPCs(stateAfterPhysics, delta, layers);
-  let finalState = updateCamera(stateAfterNPCs, app, layers);
+  const dt = delta / 1000;
+  let stateAfterPhysics = updatePhysics(stateAfterInput, delta);
+
+  // Explicitly update the electric NPC
+  if (stateAfterPhysics.electric) {
+    updateElectric(stateAfterPhysics.electric, stateAfterPhysics, dt, layers);
+  }
+
+  let finalState = updateCamera(stateAfterPhysics, app, layers);
 
   // Win condition check
   const { ball, goal } = finalState;
