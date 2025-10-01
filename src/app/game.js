@@ -9,7 +9,7 @@ import * as level8 from './levels/level8.js';
 import * as level9 from './levels/level9.js';
 import { characters } from './config.js';
 
-function renderMessage(message, state, layers) {
+function renderMessage(message, state, layers, app) {
   const storyMessageElement = document.getElementById('story-message');
 
   // Clear previous message styles
@@ -18,6 +18,17 @@ function renderMessage(message, state, layers) {
   storyMessageElement.innerHTML = ''; // Clear content
 
   if (!message) return;
+
+  let messageText = message.text;
+
+  // Perform template substitution if values are provided by the level
+  if (messageText && state.templateValues) {
+    for (const key in state.templateValues) {
+      const placeholder = `#${key}`;
+      // Use a global regex to replace all occurrences
+      messageText = messageText.replace(new RegExp(placeholder, 'g'), state.templateValues[key]);
+    }
+  }
 
   if (message.characterName) {
     const character = characters[message.characterName];
@@ -30,7 +41,7 @@ function renderMessage(message, state, layers) {
     storyMessageElement.style.borderColor = character.color;
 
     const textElement = document.createElement('p');
-    textElement.textContent = message.text;
+    textElement.textContent = messageText;
     storyMessageElement.appendChild(textElement);
 
     // Add speech bubble indicator
@@ -43,9 +54,9 @@ function renderMessage(message, state, layers) {
       indicator.classList.add('down'); // Default direction
     }
     storyMessageElement.appendChild(indicator);
-  } else {
+  } else if (messageText) {
     // Regular text message
-    storyMessageElement.textContent = message.text;
+    storyMessageElement.textContent = messageText;
   }
 }
 
@@ -105,7 +116,7 @@ export function startGame(app, inputState, layers, clock) {
     );
     levelState = newState;
 
-    renderMessage(levelState.uiMessage, levelState, layers);
+    renderMessage(levelState.uiMessage, levelState, layers, app);
 
     if (levelState.nextLevel && levelState.nextLevel !== currentLevelName) {
       changeLevel(levelState.nextLevel);
@@ -113,6 +124,7 @@ export function startGame(app, inputState, layers, clock) {
     }
   });
 
+  app.gameStartTime = Date.now();
   changeLevel('level1');
 
   return {

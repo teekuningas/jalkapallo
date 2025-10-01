@@ -100,7 +100,15 @@ export const script = [
   {
     id: 'l9-the-end',
     trigger: { type: 'condition', check: (s) => s.celebration.timer > 20 },
-    action: { text: 'LOPPU', duration: 10000 },
+    action: { text: 'LOPPU', duration: 5000 },
+  },
+  {
+    id: 'l9-final-time',
+    trigger: { type: 'condition', check: (s) => s.celebration.timer > 25 },
+    action: {
+      text: 'Aikaa meni vain #TIME sekuntia. Kyllä kelpaa maailman olla!',
+      duration: 10000,
+    },
   },
 ];
 
@@ -276,7 +284,7 @@ function updateLevel9Npcs(state, delta) {
   return newState;
 }
 
-function updateStory(state) {
+function updateStory(state, app) {
   const { ball, button, goal, storyState, tvOn, thomas } = state;
   let newState = { ...state };
 
@@ -313,6 +321,9 @@ function updateStory(state) {
     newState.storyState = 'CELEBRATION';
     newState.celebration.started = true;
     newState.sun.celebrating = true;
+    if (newState.totalGameTime === undefined) {
+      newState.totalGameTime = Math.round((Date.now() - app.gameStartTime) / 1000);
+    }
   }
 
   return newState;
@@ -369,7 +380,7 @@ export function update(state, delta, inputState, app, layers, clock) {
   const dt = delta / 1000;
   let { newState: stateAfterInput } = handleInputs(state, inputState, layers.world, delta);
 
-  let stateAfterStory = updateStory(stateAfterInput);
+  let stateAfterStory = updateStory(stateAfterInput, app);
 
   // Handle level-specific NPC story logic
   stateAfterStory = updateLevel9Npcs(stateAfterStory, delta);
@@ -431,6 +442,12 @@ export function update(state, delta, inputState, app, layers, clock) {
   let finalState = updateCamera(stateAfterPhysics, app, layers);
   updateSpeakerEffects({ ...finalState, uiMessage });
   updateSun(finalState);
+
+  if (finalState.totalGameTime !== undefined) {
+    finalState.templateValues = {
+      TIME: finalState.totalGameTime,
+    };
+  }
 
   return { ...finalState, eventState: newEventState, uiMessage };
 }
