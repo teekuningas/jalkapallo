@@ -24,7 +24,7 @@ import {
 export const script = [
   {
     id: 'intro1',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 0 },
     action: {
       type: 'showText',
       text: 'Tervetuloa jalkapallon ihmeelliseen maailmaan!',
@@ -33,7 +33,7 @@ export const script = [
   },
   {
     id: 'intro2',
-    trigger: { type: 'time', time: 5000 },
+    trigger: { type: 'time', time: 4000 },
     action: {
       type: 'showText',
       text: 'Ohjaa hahmoa nuolinäppäimillä tai kosketusnapeilla.',
@@ -42,7 +42,7 @@ export const script = [
   },
   {
     id: 'kickHelp1',
-    trigger: { type: 'time', time: 9000 },
+    trigger: { type: 'time', time: 8000 },
     action: {
       type: 'showText',
       text: 'Potkaise palloa klikkaamalla haluamaasi suuntaan.',

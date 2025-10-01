@@ -27,12 +27,12 @@ import {
 export const script = [
   {
     id: 'level8-title',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 0 },
     action: { type: 'showText', text: 'Taso 8', duration: 3000 },
   },
   {
     id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 5000 },
+    trigger: { type: 'time', time: 4000 },
     action: {
       type: 'showText',
       characterName: 'sun',
@@ -46,7 +46,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiesittekö, että nopein maali jalkapallon historiassa tehtiin vain 2.4 sekunnissa?',
+      text: 'Tiesittekö, että nopein maali jalkapallon historiassa tehtiin vain 2 sekunnissa?',
       duration: 5000,
     },
   },

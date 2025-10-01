@@ -46,7 +46,12 @@ function intervalMap(value, in_min, in_max, out_min, out_max) {
 export const script = [
   {
     id: 'l9-diag-1',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 0 },
+    action: { text: 'Taso 9', duration: 3000 },
+  },
+  {
+    id: 'l9-diag-2',
+    trigger: { type: 'time', time: 4000 },
     action: { characterName: 'thomas', text: 'Et ikinä tee maalia minua vastaan!', duration: 3000 },
   },
   {

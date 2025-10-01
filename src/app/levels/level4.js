@@ -25,22 +25,22 @@ import {
 export const script = [
   {
     id: 'level4-title',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 0 },
     action: { type: 'showText', text: 'Taso 4', duration: 3000 },
   },
   {
     id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 5000 },
+    trigger: { type: 'time', time: 4000 },
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'Mitä siinä sitten sanotaan?',
+      text: 'Mitä siinä ennustuksessa sitten sanotaan?',
       duration: 3000,
     },
   },
   {
     id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 9000 },
+    trigger: { type: 'time', time: 8000 },
     action: {
       type: 'showText',
       characterName: 'sun',
@@ -50,7 +50,7 @@ export const script = [
   },
   {
     id: 'sun-dialogue-2',
-    trigger: { type: 'time', time: 13000 },
+    trigger: { type: 'time', time: 12000 },
     action: {
       type: 'showText',
       characterName: 'sun',
@@ -60,7 +60,7 @@ export const script = [
   },
   {
     id: 'sun-dialogue-3',
-    trigger: { type: 'time', time: 17000 },
+    trigger: { type: 'time', time: 16000 },
     action: {
       type: 'showText',
       characterName: 'sun',

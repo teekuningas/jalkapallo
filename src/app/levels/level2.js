@@ -24,12 +24,12 @@ import {
 export const script = [
   {
     id: 'level2-title',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 0 },
     action: { type: 'showText', text: 'Taso 2', duration: 3000 },
   },
   {
     id: 'sun-dialogue-1',
-    trigger: { type: 'time', time: 5000 },
+    trigger: { type: 'time', time: 4000 },
     action: {
       type: 'showText',
       characterName: 'sun',
@@ -39,17 +39,17 @@ export const script = [
   },
   {
     id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 9000 },
+    trigger: { type: 'time', time: 8000 },
     action: {
       type: 'showText',
       characterName: 'jake',
-      text: 'Missä minä olen?',
+      text: 'Olen vai? Mistä tässä kaikessa on kysymys?',
       duration: 3000,
     },
   },
   {
     id: 'sun-dialogue-2',
-    trigger: { type: 'time', time: 13000 },
+    trigger: { type: 'time', time: 12000 },
     action: {
       type: 'showText',
       characterName: 'sun',
@@ -62,7 +62,7 @@ export const script = [
 export function init(app, layers) {
   const { staticLayer, world, uiLayer } = layers;
 
-  const worldBounds = { minX: -1500, maxX: 500 };
+  const worldBounds = { minX: -2500, maxX: 500 };
 
   // Create all graphics
   const background = createBackground(app, staticLayer);

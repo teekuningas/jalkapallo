@@ -29,12 +29,12 @@ import {
 export const script = [
   {
     id: 'level5-title',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 0 },
     action: { type: 'showText', text: 'Taso 5', duration: 3000 },
   },
   {
     id: 'therian-dialogue-1',
-    trigger: { type: 'time', time: 5000 },
+    trigger: { type: 'time', time: 4000 },
     action: {
       type: 'showText',
       characterName: 'therian',
@@ -44,7 +44,7 @@ export const script = [
   },
   {
     id: 'jake-dialogue-1',
-    trigger: { type: 'time', time: 9000 },
+    trigger: { type: 'time', time: 8000 },
     action: {
       type: 'showText',
       characterName: 'jake',
@@ -58,7 +58,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiesittekö muuten, että ensimmäisessä maailmansodassa jouluna 1914 saksalaiset ja brittiläiset sotilaat pitivät tulitauon ja pelasivat jalkapalloa?',
+      text: 'Tiesittekö muuten, että ensimmäisessä maailmansodassa jouluna 1914 saksalaiset ja englantilaiset sotilaat pitivät tulitauon ja pelasivat jalkapalloa?',
       duration: 5000,
     },
   },

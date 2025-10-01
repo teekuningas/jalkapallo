@@ -27,12 +27,12 @@ import {
 export const script = [
   {
     id: 'level7-title',
-    trigger: { type: 'time', time: 1000 },
+    trigger: { type: 'time', time: 0 },
     action: { type: 'showText', text: 'Taso 7', duration: 3000 },
   },
   {
     id: 'electric-dialogue-1',
-    trigger: { type: 'time', time: 5000 },
+    trigger: { type: 'time', time: 4000 },
     action: {
       type: 'showText',
       characterName: 'electric',
@@ -46,7 +46,7 @@ export const script = [
     action: {
       type: 'showText',
       characterName: 'sun',
-      text: 'Tiesittekö muuten, että jalkapalloa on pelattu kuussa? Astronautit pelasivat sitä Apollo 14 -lennolla.',
+      text: 'Tiesittekö muuten, että 1600-luvulla Englannin kuningas Jaakko I kielsi jalkapallon pelaamisen pyhäpäivisin?',
       duration: 5000,
     },
   },
