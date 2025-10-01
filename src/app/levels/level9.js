@@ -62,10 +62,7 @@ export const script = [
   {
     id: 'l9-diag-4',
     trigger: { type: 'condition', check: (s) => s.storyState === 'PLAY_POSSIBLE' },
-    actions: [
-      { characterName: 'jake', text: 'Nyt on tilaisuuteni!', duration: 3000, delay: 500 },
-      { characterName: 'sun', text: 'Mikä älynväläys!', duration: 3000, delay: 500 },
-    ],
+    actions: [{ characterName: 'jake', text: 'Nyt on tilaisuuteni!', duration: 3000, delay: 500 }],
   },
   {
     id: 'l9-diag-5',
